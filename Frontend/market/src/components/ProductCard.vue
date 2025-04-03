@@ -45,18 +45,18 @@ const navigateToProduct = () => {
 
 <style scoped>
 .product-card {
-  border: 1px solid #333;
+  border: 1px solid var(--accent-color);
   border-radius: 8px;
   overflow: hidden;
   transition:
     transform 0.2s,
     box-shadow 0.2s;
-  background: #1a1a1a;
+  background: var(--card-background);
 }
 
 .product-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .product-image {
@@ -72,27 +72,27 @@ const navigateToProduct = () => {
 .product-title {
   margin: 0;
   font-size: 1.1rem;
-  color: #ffffff;
+  color: var(--text-color);
 }
 
 .product-description {
   margin: 0.5rem 0;
   font-size: 0.9rem;
-  color: #cccccc;
+  color: var(--text-color);
 }
 
 .product-price {
   font-size: 1.2rem;
   font-weight: bold;
-  color: #f0931c;
+  color: var(--accent-color);
   margin: 0.5rem 0;
 }
 
 .more-details {
   width: 100%;
   padding: 0.5rem;
-  background-color: #f0931c;
-  color: #000000;
+  background-color: var(--button-background);
+  color: var(--button-text-color);
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -100,6 +100,6 @@ const navigateToProduct = () => {
 }
 
 .more-details:hover {
-  background-color: #e88a1a;
+  background-color: var(--button-hover-background);
 }
 </style>

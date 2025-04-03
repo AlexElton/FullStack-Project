@@ -1,10 +1,42 @@
 @import './base.css';
 
+:root {
+  --primary-color: #228b22; /* Dark Forest Green */
+  --text-color: #333333; /* Dark Gray for text */
+  --background-color: #ffffff; /* White background */
+  --card-background: #f3ffdf; /* Light Gray for cards */
+  --accent-color: #90ee90; /* Light Green for accents */
+  --button-background: #58ff58; /* Button background */
+  --button-text-color: #000000; /* Button text color */
+  --button-hover-background: #21ff21; /* Button hover background */
+  --link-color: #0066cc; /* Accessible link color */
+  --link-hover-color: #004999; /* Link hover color */
+  --error-color: #d32f2f; /* Error messages */
+  --success-color: #388e3c; /* Success messages */
+  --warning-color: #fbc02d; /* Warning messages */
+}
+
+body {
+  font-family: Arial, sans-serif;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  line-height: 1.6;
+}
+
 #app {
   max-width: 100%;
   margin: auto;
   padding: 2rem;
   font-weight: normal;
+}
+
+a {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--link-hover-color);
 }
 
 a,
@@ -13,6 +45,20 @@ a,
   color: hsla(160, 100%, 37%, 1);
   transition: 0.4s;
   padding: 3px;
+}
+
+button {
+  background-color: var(--button-background);
+  color: var(--button-text-color);
+  border: none;
+  border-radius: 4px;
+  padding: 0.8rem 1.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: var(--button-hover-background);
 }
 
 @media (hover: hover) {

@@ -53,7 +53,8 @@ const isMenuOpen = ref(false)
 
 <style scoped>
 .navbar {
-  background-color: #000000;
+  background-color: var(--primary-color);
+  color: var(--button-text-color);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   position: sticky;
   top: 0;
@@ -92,7 +93,7 @@ const isMenuOpen = ref(false)
 }
 
 .nav-link {
-  color: #ffffff;
+  color: var(--button-text-color);
   text-decoration: none;
   font-weight: 500;
   padding: 0.5rem 1rem;
@@ -106,31 +107,31 @@ const isMenuOpen = ref(false)
 }
 
 .nav-link:hover {
-  color: #f0931c;
-  background-color: rgba(240, 147, 28, 0.1);
+  background-color: var(--button-hover-background);
+  color: var(--button-text-color);
 }
 
 .nav-link.router-link-active {
-  color: #f0931c;
-  background-color: rgba(240, 147, 28, 0.1);
+  color: #00841d;
+  background-color: rgba(130, 240, 28, 0.1);
 }
 
 .sell-link {
-  background-color: #f0931c;
-  color: #000000 !important;
+  background-color: var(--button-background);
+  color: var(--button-text-color);
   font-weight: 600;
 }
 
 .sell-link:hover {
-  background-color: #e88a1a;
-  color: #000000 !important;
+  background-color: var(--button-hover-background);
+  color: var(--button-text-color);
   transform: translateY(-1px);
 }
 
 .register-link {
   background-color: #ffffff;
   color: #000000;
-  border: 1px solid #f0931c;
+  border: 1px solid var(--button-background);
 }
 
 .register-link:hover {
@@ -138,7 +139,7 @@ const isMenuOpen = ref(false)
 }
 
 .message-count {
-  background-color: #f0931c;
+  background-color: var(--button-background);
   color: #000000;
   font-size: 0.75rem;
   padding: 0.25rem 0.5rem;
