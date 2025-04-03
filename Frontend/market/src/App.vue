@@ -17,10 +17,11 @@ import NavBar from './components/NavBar.vue'
 
 <style>
 :root {
-  --primary-color: #f0931c;
-  --text-color: #ffffff;
-  --background-color: #000000;
-  --card-background: #1a1a1a;
+  --primary-color: var(--primary-color);
+  --text-color: var(--text-color);
+  --background-color: var(--background-color);
+  --card-background: var(--card-background);
+  --accent-color: var(--accent-color);
 }
 
 * {
@@ -51,6 +52,7 @@ body {
   background-color: var(--card-background);
   padding: 1rem;
   text-align: center;
-  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+  color: var(--text-color);
 }
 </style>

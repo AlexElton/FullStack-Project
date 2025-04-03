@@ -30,6 +30,51 @@ const products = [
     category: 'Electronics',
     seller: 'TechStore',
   },
+  {
+    id: 4,
+    title: 'Goblin Slayer: Volume 1',
+    price: 19.99,
+    image: 'https://placehold.co/600x400',
+    description: 'First volume of the popular manga series "Goblin Slayer"',
+    category: 'Books',
+    seller: 'BookStore',
+  },
+  {
+    id: 4,
+    title: 'Goblin Slayer: Volume 1',
+    price: 19.99,
+    image: 'https://placehold.co/600x400',
+    description: 'First volume of the popular manga series "Goblin Slayer"',
+    category: 'Books',
+    seller: 'BookStore',
+  },
+  {
+    id: 4,
+    title: 'Goblin Slayer: Volume 1',
+    price: 19.99,
+    image: 'https://placehold.co/600x400',
+    description: 'First volume of the popular manga series "Goblin Slayer"',
+    category: 'Books',
+    seller: 'BookStore',
+  },
+  {
+    id: 4,
+    title: 'Goblin Slayer: Volume 1',
+    price: 19.99,
+    image: 'https://placehold.co/600x400',
+    description: 'First volume of the popular manga series "Goblin Slayer"',
+    category: 'Books',
+    seller: 'BookStore',
+  },
+  {
+    id: 4,
+    title: 'Goblin Slayer: Volume 1',
+    price: 19.99,
+    image: 'https://placehold.co/600x400',
+    description: 'First volume of the popular manga series "Goblin Slayer"',
+    category: 'Books',
+    seller: 'BookStore',
+  }
 ]
 
 // Placeholder for API integration
@@ -87,14 +132,16 @@ const categories = ['All', 'Electronics', 'Clothing', 'Books', 'Home & Garden']
 .products-page {
   max-width: 100%;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem;
+
 }
 
 .filters {
-  margin-bottom: 2rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  width: 50%;
+  margin: 2rem auto;
 }
 
 .search-bar {
@@ -105,20 +152,21 @@ const categories = ['All', 'Electronics', 'Clothing', 'Books', 'Home & Garden']
 .search-bar input {
   flex: 1;
   padding: 0.8rem;
-  border: 1px solid #333;
+  box-shadow: 0 2px 4px rgba(123, 164, 102, 0.1);
   border-radius: 4px;
-  background-color: #1a1a1a;
-  color: #ffffff;
+  background-color: var(--background-color);
+  color: var(--text-color);
 }
 
 .search-bar input::placeholder {
-  color: #888;
+  color: var(--accent-color);
 }
 
 .search-bar button {
   padding: 0.8rem 1.5rem;
-  background-color: #f0931c;
-  color: #000000;
+  background-color: var(--button-background);
+  color: var(--button-text-color);
+  box-shadow: 0 2px 4px rgba(123, 164, 102, 0.1);
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -126,7 +174,7 @@ const categories = ['All', 'Electronics', 'Clothing', 'Books', 'Home & Garden']
 }
 
 .search-bar button:hover {
-  background-color: #e88a1a;
+  background-color: var(--button-hover-background);
 }
 
 .filter-options {
@@ -136,10 +184,10 @@ const categories = ['All', 'Electronics', 'Clothing', 'Books', 'Home & Garden']
 
 .filter-options select {
   padding: 0.8rem;
-  border: 1px solid #333;
+  box-shadow: 0 2px 4px rgba(123, 164, 102, 0.1);
   border-radius: 4px;
-  background-color: #1a1a1a;
-  color: #ffffff;
+  background-color: var(--background-color);
+  color: var(--text-color);
   cursor: pointer;
 }
 
@@ -153,26 +201,26 @@ const categories = ['All', 'Electronics', 'Clothing', 'Books', 'Home & Garden']
 .sell-section {
   text-align: center;
   padding: 3rem;
-  background-color: #1a1a1a;
+  background-color: var(--card-background);
   border-radius: 8px;
   margin-top: 2rem;
 }
 
 .sell-section h2 {
-  color: #ffffff;
+  color: var(--text-color);
   margin-bottom: 1rem;
   font-size: 1.8rem;
 }
 
 .sell-section p {
-  color: #cccccc;
+  color: var(--text-color);
   margin-bottom: 1.5rem;
 }
 
 .sell-button {
   padding: 1rem 2rem;
-  background-color: #f0931c;
-  color: #000000;
+  background-color: var(--button-background);
+  color: var(--button-text-color);
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -181,6 +229,6 @@ const categories = ['All', 'Electronics', 'Clothing', 'Books', 'Home & Garden']
 }
 
 .sell-button:hover {
-  background-color: #e88a1a;
+  background-color: var(--button-hover-background);
 }
 </style>

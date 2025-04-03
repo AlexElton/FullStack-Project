@@ -72,8 +72,8 @@ const navigateToSell = () => {
 }
 
 .hero {
-  background: linear-gradient(135deg, #f0931c 0%, #f0931c 100%);
-  color: #000000;
+  background: var(--primary-color);
+  color: var(--button-text-color);
   padding: 4rem 2rem;
   text-align: center;
 }
@@ -86,18 +86,18 @@ const navigateToSell = () => {
 .hero h1 {
   font-size: 2.5rem;
   margin-bottom: 1rem;
-  color: #000000;
+  color: var(--button-text-color);
 }
 
 .hero p {
   font-size: 1.2rem;
   margin-bottom: 2rem;
-  color: #000000;
+  color: var(--button-text-color);
 }
 
 .cta-button {
-  background-color: #000000;
-  color: #ffffff;
+  background-color: var(--button-background);
+  color: var(--button-text-color);
   font-weight: bold;
   border: none;
   padding: 0.8rem 1.5rem;
@@ -108,7 +108,7 @@ const navigateToSell = () => {
 }
 
 .cta-button:hover {
-  background-color: #333333;
+  background-color: var(--button-hover-background);
 }
 
 .featured-products {
@@ -116,7 +116,7 @@ const navigateToSell = () => {
 }
 
 .featured-products h2 {
-  color: #ffffff;
+  color: var(--text-color);
   text-align: center;
   margin-bottom: 2rem;
   font-size: 2rem;
