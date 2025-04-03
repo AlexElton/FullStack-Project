@@ -1,10 +1,17 @@
-HELP.md
-target/
-!Backend/.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+# General
+.DS_Store
+Thumbs.db
 
-### STS ###
+# IntelliJ IDEA
+Backend/.idea
+*.iws
+*.iml
+*.ipr
+
+# VS Code
+.vscode/
+
+# Eclipse / STS
 .apt_generated
 .classpath
 .factorypath
@@ -13,30 +20,33 @@ target/
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
-Backend/.idea
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
+# NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
+
+# Logs & Compiled Files
+*.log
+*.class
+
+# Backend (Java + Maven)
+target/
+!Backend/.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Frontend (Vue 3 + Vite)
+node_modules/
+dist/
+.pnpm-store/
+
+# Build Directories
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
-.vscode/
-
-
-# Backend
-*.log
-*.class
-
-# Frontend
-node_modules/
-dist/
+# Docker
+docker-compose.override.yml
+.docker/
