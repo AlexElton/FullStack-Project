@@ -4,6 +4,15 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
+// Sample Hero images
+const heroImages = [
+  'https://res.cloudinary.com/dvxtp0hrq/image/upload/v1743697402/cld-sample-4.jpg',
+  'https://res.cloudinary.com/dvxtp0hrq/image/upload/v1743697402/cld-sample-2.jpg',
+  'https://res.cloudinary.com/dvxtp0hrq/image/upload/v1743697402/cld-sample-3.jpg',
+]
+
+const heroImage = heroImages[Math.floor(Math.random() * heroImages.length)]
+
 // Sample data - in a real app, this would come from an API
 const featuredProducts = [
   {
@@ -40,12 +49,14 @@ const navigateToSell = () => {
 
 <template>
   <main class="home">
-    <section class="hero">
-      <div class="hero-content">
-        <h1>Welcome to HaggleHub</h1>
+    <section class="hero" :style="{ backgroundImage: `url(${heroImage})` }">
+      <div class="hero-content" >
+        <h1>Welcome to ShopZilla</h1>
         <p>Discover amazing products at great prices</p>
-        <button class="cta-button" @click="navigateToProducts">Shop Now</button>
-        <button class="cta-button" @click="navigateToSell">Sell Now</button>
+        <div class="buttons">
+          <button class="cta-button" @click="navigateToProducts">Shop Now</button>
+          <button class="cta-button" @click="navigateToSell">Sell Now</button>
+        </div>
       </div>
     </section>
 
@@ -74,25 +85,43 @@ const navigateToSell = () => {
 .hero {
   background: var(--primary-color);
   color: var(--button-text-color);
-  padding: 4rem 2rem;
+  padding: 2rem 1rem;
   text-align: center;
+  background-size: cover;
+  background-position: center;
+  height: 60vh;
+  justify-content: center;
 }
 
 .hero-content {
   max-width: 800px;
-  margin: 0 auto;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s;
+  transform: scale(1);
 }
 
 .hero h1 {
   font-size: 2.5rem;
   margin-bottom: 1rem;
-  color: var(--button-text-color);
+  color: var(--hero-text-color);
 }
 
 .hero p {
   font-size: 1.2rem;
   margin-bottom: 2rem;
-  color: var(--button-text-color);
+  color: var(--hero-text-color);
 }
 
 .cta-button {
