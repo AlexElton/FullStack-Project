@@ -14,6 +14,7 @@
   --error-color: #d32f2f; /* Error messages */
   --success-color: #388e3c; /* Success messages */
   --warning-color: #fbc02d; /* Warning messages */
+  --hero-text-color: #ffffff; /* Hero text color */
 }
 
 body {

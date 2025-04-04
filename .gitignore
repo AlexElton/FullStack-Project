@@ -50,3 +50,5 @@ build/
 # Docker
 docker-compose.override.yml
 .docker/
+
+.DS_Stores
