@@ -36,6 +36,7 @@ target/
 !Backend/.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+Backend/target/
 
 # Frontend (Vue 3 + Vite)
 node_modules/
