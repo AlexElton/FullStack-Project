@@ -103,12 +103,59 @@ const sendMessage = () => {
 
     <!-- Message Detail Panel -->
 <div class="message-detail">
-  
+  <div class="message-detail-header">
+    <div class="item-info">
+      <img :src="currentMessage.item.image" alt="Product" class="item-image" />
+      <div>
+        <h3>{{ currentMessage.item.title }}</h3>
+        <div class="price">{{ currentMessage.item.price }} NOK</div>
+        
+        <!-- Only show the status badge if status is 'Sold' -->
+        <span v-if="currentMessage.item.status === 'Sold'" class="status-badge">
+          {{ currentMessage.item.status }}
+        </span>
+      </div>
+    </div>
 
-   
+    <div class="sender-info">
+      <img :src="currentMessage.sender.avatar" alt="Sender avatar" class="sender-avatar" />
+      <div class="sender-details">
+        <div class="sender-name">{{ currentMessage.sender.name }}</div>
+        <div v-if="currentMessage.sender.verified" class="verified-badge">
+          <span>Verified</span>
+          <span>On FINN since {{ currentMessage.sender.memberSince }}</span>
+        </div>
+        <div v-if="currentMessage.sender.rating" class="rating">
+          {{ currentMessage.sender.rating }}
+          <span>{{ currentMessage.sender.reviews }} reviews</span>
+        </div>
+      </div>
+      <button class="status-button">Show profile</button>
+    </div>
+  </div>
   
- 
-  
+  <div class="message-content">
+    <div class="message-bubble">
+      <div class="message-time">{{ currentMessage.date }}</div>
+      <div class="message-text">{{ currentMessage.content }}</div>
+      <div class="action-button" v-if="currentMessage.item.status === 'Sold'">
+        <button class="status-link">Give {{currentMessage.sender.name}} a rating</button>
+      </div>
+    </div>
+  </div>
+  <div class="message-input">
+        <button class="attachment-button">📎</button>
+        <input 
+          type="text" 
+          v-model="newMessage" 
+          placeholder="Write a message..." 
+          @keyup.enter="sendMessage"
+        />
+        <div v-if="newMessage" class="send-button">
+          <button class="send-button" @click="sendMessage">➡️</button>
+        </div>
+        <div class="keyboard-hint">Shift+Enter for next line</div>
+    </div>
 </div>
   </div>
 </template>
