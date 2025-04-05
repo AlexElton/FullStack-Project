@@ -70,7 +70,35 @@ const sendMessage = () => {
 <template>
   <div class="messages-page">
     <!-- Message List Panel -->
-    
+    <div class="message-list">
+      <div class="message-header">
+        <h2>Messages</h2>
+      </div>
+
+      <div class="message-items">
+        <div
+          v-for="message in messages"
+          :key="message.id"
+          class="message-item"
+          :class="{ active: message.id === currentMessage.id }"
+          @click="currentMessage = message"
+        >
+          <div class="message-item-image">
+            <img :src="message.item.image" alt="Product thumbnail" />
+            <span v-if="message.unread" class="unread-badge">1</span>
+          </div>
+          <div class="message-item-content">
+            <div class="message-item-title">{{ message.item.title }}</div>
+            <div class="message-item-preview">
+              {{ message.content }}
+            </div>
+            <div class="message-item-meta">
+              <span class="status-badge">{{ message.item.status }}</span>
+              <span class="message-date">{{ message.date }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Message Detail Panel -->
