@@ -1,6 +1,11 @@
 <script setup>
-import { RouterView } from 'vue-router'
-import NavBar from './components/NavBar.vue'
+import { provide } from 'vue';
+import { unreadCount } from '@/composables/messageStore';
+import { RouterView } from 'vue-router';
+import NavBar from './components/NavBar.vue';
+
+// Provide the actual computed unreadCount from the message store
+provide('unreadCount', unreadCount);
 </script>
 
 <template>
@@ -14,6 +19,7 @@ import NavBar from './components/NavBar.vue'
     </footer>
   </div>
 </template>
+
 
 <style>
 :root {
