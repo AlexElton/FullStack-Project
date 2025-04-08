@@ -1,59 +1,11 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { messages } from '@/composables/messageStore'
 
-// Sample message data - will be replaced with API calls
-const messages = ref([
-  {
-    id: 1,
-    sender: {
-      name: 'Ingvild',
-      avatar: 'https://placehold.co/100x100',
-      verified: true,
-      memberSince: '2014',
-      rating: 9.9,
-      reviews: 81
-    },
-    item: {
-      title: 'Garmin HRM-Tri',
-      price: 750,
-      image: 'https://placehold.co/600x400',
-      status: 'Sold'
-    },
-    date: 'March 26, 22:11',
-    content: 'Hooray, the item is yours! 🎉',
-  },
-  {
-    id: 2,
-    sender: {
-      name: 'Antoni',
-      avatar: 'https://placehold.co/100x100'
-    },
-    item: {
-      title: 'NorthWave Cycling Shoes',
-      price:  500,
-      image: 'https://placehold.co/600x400',
-      status: ''
-    },
-    date: 'Yesterday',
-    content: 'I have sent the package with...',
-    unread: true
-  },
-  {
-    id: 3,
-    sender: {
-      name: 'Alex',
-      avatar: 'https://placehold.co/100x100'
-    },
-    item: {
-      title: 'MacBook Pro | 13" - 2 Thunderbolt',
-      price: 15000,
-      image: 'https://placehold.co/600x400',
-      status: ''
-    },
-    date: 'Nov 12',
-    content: 'You: Haha yes. I\'ll come down'
-  }
-])
+// Compute the number of unread messages
+const unreadCount = computed(() => {
+  return messages.value.filter(message => message.unread).length
+})
 
 const newMessage = ref('')
 const currentMessage = ref(messages.value[0])
@@ -63,6 +15,28 @@ const sendMessage = () => {
     // Send message logic would go here
     console.log('Sending message:', newMessage.value)
     newMessage.value = ''
+  }
+}
+
+// Function to mark message as read when clicked
+const selectMessage = (message) => {
+  if (message.unread) {
+    message.unread = false
+  }
+  currentMessage.value = message
+}
+
+const fileInput = ref(null)
+
+const triggerFilePicker = () => {
+  fileInput.value?.click()
+}
+
+const handleFileChange = (event) => {
+  const file = event.target.files[0]
+  if (file) {
+    console.log('Selected file:', file)
+    // You can handle file upload logic here
   }
 }
 </script>
@@ -80,8 +54,8 @@ const sendMessage = () => {
           v-for="message in messages"
           :key="message.id"
           class="message-item"
-          :class="{ active: message.id === currentMessage.id }"
-          @click="currentMessage = message"
+          :class="{ active: message.id === currentMessage.id, unread: message.unread }"
+          @click="selectMessage(message)"
         >
           <div class="message-item-image">
             <img :src="message.item.image" alt="Product thumbnail" />
@@ -102,61 +76,71 @@ const sendMessage = () => {
     </div>
 
     <!-- Message Detail Panel -->
-<div class="message-detail">
-  <div class="message-detail-header">
-    <div class="item-info">
-      <img :src="currentMessage.item.image" alt="Product" class="item-image" />
-      <div>
-        <h3>{{ currentMessage.item.title }}</h3>
-        <div class="price">{{ currentMessage.item.price }} NOK</div>
-        
-        <!-- Only show the status badge if status is 'Sold' -->
-        <span v-if="currentMessage.item.status === 'Sold'" class="status-badge">
-          {{ currentMessage.item.status }}
-        </span>
-      </div>
-    </div>
+    <div class="message-detail">
+      <div class="message-detail-header">
+        <div class="item-info">
+          <img :src="currentMessage.item.image" alt="Product" class="item-image" />
+          <div>
+            <h3>{{ currentMessage.item.title }}</h3>
+            <div class="price">{{ currentMessage.item.price }} NOK</div>
+            
+            <!-- Only show the status badge if status is 'Sold' -->
+            <span v-if="currentMessage.item.status === 'Sold'" class="status-badge">
+              {{ currentMessage.item.status }}
+            </span>
+          </div>
+        </div>
 
-    <div class="sender-info">
-      <img :src="currentMessage.sender.avatar" alt="Sender avatar" class="sender-avatar" />
-      <div class="sender-details">
-        <div class="sender-name">{{ currentMessage.sender.name }}</div>
-        <div v-if="currentMessage.sender.verified" class="verified-badge">
-          <span>Verified</span>
-          <span>On FINN since {{ currentMessage.sender.memberSince }}</span>
-        </div>
-        <div v-if="currentMessage.sender.rating" class="rating">
-          {{ currentMessage.sender.rating }}
-          <span>{{ currentMessage.sender.reviews }} reviews</span>
+        <div class="sender-info">
+          <img :src="currentMessage.sender.avatar" alt="Sender avatar" class="sender-avatar" />
+          <div class="sender-details">
+            <div class="sender-name">{{ currentMessage.sender.name }}</div>
+            <div v-if="currentMessage.sender.verified" class="verified-badge">
+              <span>Verified</span>
+              <span>On FINN since {{ currentMessage.sender.memberSince }}</span>
+            </div>
+            <div v-if="currentMessage.sender.rating" class="rating">
+              {{ currentMessage.sender.rating }}
+              <span>{{ currentMessage.sender.reviews }} reviews</span>
+            </div>
+          </div>
+          <button class="status-button">Show profile</button>
         </div>
       </div>
-      <button class="status-button">Show profile</button>
-    </div>
-  </div>
-  
-  <div class="message-content">
-    <div class="message-bubble">
-      <div class="message-time">{{ currentMessage.date }}</div>
-      <div class="message-text">{{ currentMessage.content }}</div>
-      <div class="action-button" v-if="currentMessage.item.status === 'Sold'">
-        <button class="status-link">Give {{currentMessage.sender.name}} a rating</button>
-      </div>
-    </div>
-  </div>
-  <div class="message-input">
-        <button class="attachment-button">📎</button>
-        <input 
-          type="text" 
-          v-model="newMessage" 
-          placeholder="Write a message..." 
-          @keyup.enter="sendMessage"
-        />
-        <div v-if="newMessage" class="send-button">
-          <button class="send-button" @click="sendMessage">➡️</button>
+      
+      <div class="message-content">
+        <div class="message-bubble">
+          <div class="message-time">{{ currentMessage.date }}</div>
+          <div class="message-text">{{ currentMessage.content }}</div>
+          <div class="action-button" v-if="currentMessage.item.status === 'Sold'">
+            <button class="status-link">Give {{currentMessage.sender.name}} a rating</button>
+          </div>
         </div>
-        <div class="keyboard-hint">Shift+Enter for next line</div>
+      </div>
+      <div class="message-input">
+        <div class="input-top-row">
+            <button class="attachment-button" @click="triggerFilePicker">📎</button>
+
+            <input 
+            type="text" 
+            v-model="newMessage" 
+            placeholder="Write a message..." 
+            @keyup.enter="sendMessage"
+            class="text-input"
+            />
+
+            <button v-if="newMessage" class="send-button" @click="sendMessage">➡️</button>
+        </div>
+
+        <div class="keyboard-hint">Shift+Enter for linjeskift</div>
+
+        <input type="file" ref="fileInput" style="display: none;" @change="handleFileChange" />
+        </div>
+
+
+
+
     </div>
-</div>
   </div>
 </template>
 
@@ -207,6 +191,11 @@ const sendMessage = () => {
 .message-item.active {
   background-color: var(--card-background);
   border-left: 4px solid var(--primary-color);
+}
+
+/* Highlight unread messages */
+.message-item.unread {
+  background-color: rgba(30, 136, 229, 0.05);
 }
 
 .message-item-image {
@@ -400,67 +389,74 @@ const sendMessage = () => {
   font-weight: bold;
 }
 
+
 .message-input {
+  display: flex;
+  flex-direction: column;
   padding: 1rem;
   border-top: 1px solid #e0e0e0;
-  position: relative;
-  display: flex;
-  align-items: center;
+  background-color: #fff;
+  gap: 0.5rem;
 }
 
-.message-input input {
-  width: 100%;
-  padding: 0.8rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 20px;
-  font-size: 16px;
-}
-
-.input-actions {
-  position: absolute;
-  right: 1rem;
+.input-top-row {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
+}
+
+.text-input {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.keyboard-hint {
+  font-size: 0.8rem;
+  color: #888;
+  padding-left: 2.2rem; /* aligns with input left padding including attachment icon */
 }
 
 .attachment-button {
   background: none;
   border: none;
+  font-size: 22px;
   cursor: pointer;
-  padding: 0.5rem;
+  color: #555;
 }
 
-.attachment-button {
-  font-size: 20px;
-  color: #007bff;
+.input-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.input-area input {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 30px;
+  font-size: 16px;
+  background-color: #f4f4f4;
 }
 
 .send-button {
+  background-color: #1a73e8;
+  color: white;
   border: none;
-  border-radius: 50%; /* Round button */
+  border-radius: 50%;
   font-size: 18px;
+  width: 40px;
+  height: 40px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .send-button:hover {
-  background-color: var(--button-hover-background);
-  color: white;
+  background-color: #1558c0;
 }
 
-
-.keyboard-hint {
-  font-size: 0.8rem;
-  color: #888;
-  margin-top: 0.5rem;
-  text-align: right;
-}
-
-.protection-notice {
-  padding: 1rem;
-  font-size: 0.8rem;
-  color: #888;
-  text-align: center;
-  border-top: 1px solid #e0e0e0;
-}
 </style>
