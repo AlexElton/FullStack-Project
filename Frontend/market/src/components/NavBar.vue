@@ -1,6 +1,10 @@
 <script setup>
 import { RouterLink } from 'vue-router'
-import { ref } from 'vue'
+import { ref, inject } from 'vue'
+
+// Import the unreadCount computed property from parent component or store
+// For this example, we'll inject it as a dependency
+const unreadCount = inject('unreadCount', ref(0))
 
 const isMenuOpen = ref(false)
 </script>
@@ -26,7 +30,7 @@ const isMenuOpen = ref(false)
         </RouterLink>
         <RouterLink to="/messages" class="nav-link" @click="isMenuOpen = false">
           <span class="link-text">Messages</span>
-          <span class="message-count">2</span>
+          <span v-if="unreadCount > 0" class="message-count">{{ unreadCount }}</span>
         </RouterLink>
       </div>
 
