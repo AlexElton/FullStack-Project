@@ -1,14 +1,18 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useItemStore } from '../stores/itemStore'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 
 const route = useRoute()
+const itemStore = useItemStore()
 const currentImageIndex = ref(0)
 const messageText = ref('')
 const isMessageModalOpen = ref(false)
 const mapContainer = ref(null)
+const loading = ref(true)
+const error = ref(null)
 let map = null
 
 // Fix for Leaflet marker icons
@@ -22,50 +26,84 @@ const fixLeafletIcon = () => {
   })
 }
 
-// Sample data - will be replaced with API calls
-const product = {
-  id: 1,
-  title: 'Premium Headphones',
-  price: 199.99,
-  description:
-    'High-quality wireless headphones with noise cancellation. Perfect for music enthusiasts and professionals. Features include 30-hour battery life, active noise cancellation, and premium sound quality.',
-  images: [
-    'https://placehold.co/600x400',
-    'https://placehold.co/500x400',
-    'https://placehold.co/600x400',
-    'https://placehold.co/600x400',
-  ],
-  category: 'Electronics',
-  condition: 'Like New',
+// Get product images from the itemStore's currentItem
+const productImages = computed(() => {
+  if (!itemStore.currentItem || !itemStore.currentItem.images) return []
+  return itemStore.currentItem.images.map(img => img.imageUrl)
+})
+
+// Fallback product data in case API call fails
+const fallbackProduct = {
+  title: 'Product Not Found',
+  price: 0,
+  description: 'This product could not be loaded.',
+  images: ['https://placehold.co/600x400'],
+  category: 'N/A',
+  condition: 'N/A',
   location: {
-    address: '123 Market Street, Oslo, Norway',
+    address: 'Unknown',
     coordinates: {
       lat: 59.9139,
       lng: 10.7522,
     },
   },
   seller: {
-    username: 'TechEnthusiast',
-    rating: 4.8,
-    memberSince: '2023',
-    totalSales: 45,
-    responseTime: 'Usually responds within 24 hours',
+    username: 'Unknown',
+    rating: 0,
+    memberSince: 'N/A',
+    totalSales: 0,
+    responseTime: 'N/A',
   },
-  specifications: [
-    { label: 'Brand', value: 'Premium Audio' },
-    { label: 'Model', value: 'PA-1000' },
-    { label: 'Color', value: 'Black' },
-    { label: 'Warranty', value: '1 Year' },
-  ],
+  specifications: [],
 }
 
+// Get formatted product data for display
+const product = computed(() => {
+  if (!itemStore.currentItem) return fallbackProduct
+  
+  return {
+    id: itemStore.currentItem.itemId,
+    title: itemStore.currentItem.title || 'Untitled Product',
+    price: itemStore.currentItem.price || 0,
+    description: itemStore.currentItem.fullDescription || itemStore.currentItem.briefDescription || 'No description available',
+    images: productImages.value.length > 0 ? productImages.value : ['https://placehold.co/600x400'],
+    category: itemStore.currentItem.category?.name || 'N/A',
+    condition: itemStore.currentItem.condition || 'N/A',
+    location: {
+      address: itemStore.currentItem.location || 'Location not specified',
+      coordinates: {
+        // Default to Oslo coordinates if none provided
+        lat: 59.9139,
+        lng: 10.7522,
+      },
+    },
+    seller: {
+      username: itemStore.currentItem.seller?.username || 'Unknown seller',
+      rating: itemStore.currentItem.seller?.rating || 0,
+      memberSince: itemStore.currentItem.seller?.createdAt 
+        ? new Date(itemStore.currentItem.seller.createdAt).getFullYear().toString()
+        : 'N/A',
+      totalSales: itemStore.currentItem.seller?.totalSales || 0,
+      responseTime: 'Usually responds within 24 hours',
+    },
+    specifications: [
+      { label: 'Condition', value: itemStore.currentItem.condition || 'N/A' },
+      { label: 'Quantity', value: itemStore.currentItem.quantity || 1 },
+      { label: 'Accepts Offers', value: itemStore.currentItem.allowOffers ? 'Yes' : 'No' },
+      { label: 'Accepts Vipps', value: itemStore.currentItem.acceptVipps ? 'Yes' : 'No' },
+    ],
+  }
+})
+
 const nextImage = () => {
-  currentImageIndex.value = (currentImageIndex.value + 1) % product.images.length
+  if (!product.value.images || product.value.images.length <= 1) return
+  currentImageIndex.value = (currentImageIndex.value + 1) % product.value.images.length
 }
 
 const previousImage = () => {
+  if (!product.value.images || product.value.images.length <= 1) return
   currentImageIndex.value =
-    currentImageIndex.value === 0 ? product.images.length - 1 : currentImageIndex.value - 1
+    currentImageIndex.value === 0 ? product.value.images.length - 1 : currentImageIndex.value - 1
 }
 
 const openMessageModal = () => {
@@ -80,44 +118,94 @@ const closeMessageModal = () => {
 const sendMessage = () => {
   // TODO: Implement message sending functionality
   console.log('Sending message to seller:', {
-    seller: product.seller.username,
+    seller: product.value.seller.username,
     message: messageText.value,
-    productId: product.id,
+    productId: product.value.id,
   })
   closeMessageModal()
+}
+
+// Fetch product data
+const fetchProduct = async () => {
+  loading.value = true
+  error.value = null
+  try {
+    const productId = route.params.id
+    if (!productId) {
+      error.value = 'No product ID provided'
+      return
+    }
+    
+    await itemStore.getItem(productId)
+    
+    if (!itemStore.currentItem) {
+      error.value = 'Product not found'
+    }
+  } catch (err) {
+    console.error('Error fetching product:', err)
+    if (err.response) {
+      // Handle specific API error responses
+      switch (err.response.status) {
+        case 404:
+          error.value = 'Product not found'
+          break
+        case 403:
+          error.value = 'You do not have permission to view this product'
+          break
+        default:
+          error.value = `Failed to load product details: ${err.response.data?.message || err.message}`
+      }
+    } else if (err.request) {
+      // Handle network errors
+      error.value = 'Network error. Please check your connection and try again.'
+    } else {
+      error.value = `An unexpected error occurred: ${err.message}`
+    }
+  } finally {
+    loading.value = false
+  }
 }
 
 // Initialize the map
 const initMap = () => {
   if (!mapContainer.value) return
   
-  // Fix Leaflet icon issue
-  fixLeafletIcon()
-  
-  // Create the map instance
-  map = L.map(mapContainer.value).setView(
-    [product.location.coordinates.lat, product.location.coordinates.lng], 
-    15
-  )
-  
-  // Add the OpenStreetMap tiles
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-  }).addTo(map)
-  
-  // Add a marker for the product location
-  L.marker([product.location.coordinates.lat, product.location.coordinates.lng])
-    .addTo(map)
-    .bindPopup(product.location.address)
-    .openPopup()
+  try {
+    // Fix Leaflet icon issue
+    fixLeafletIcon()
+    
+    // Create the map instance
+    map = L.map(mapContainer.value).setView(
+      [product.value.location.coordinates.lat, product.value.location.coordinates.lng], 
+      15
+    )
+    
+    // Add the OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map)
+    
+    // Add a marker for the product location
+    L.marker([product.value.location.coordinates.lat, product.value.location.coordinates.lng])
+      .addTo(map)
+      .bindPopup(product.value.location.address)
+      .openPopup()
+  } catch (err) {
+    console.error('Error initializing map:', err)
+  }
 }
 
 // Initialize map when component is mounted
-onMounted(() => {
-  // Small delay to ensure the DOM is fully rendered
-  setTimeout(() => {
-    initMap()
-  }, 100)
+onMounted(async () => {
+  await fetchProduct()
+  
+  // Only initialize map if loading is complete and there's no error
+  if (!loading.value && !error.value) {
+    // Small delay to ensure the DOM is fully rendered
+    setTimeout(() => {
+      initMap()
+    }, 100)
+  }
 })
 
 // Clean up map when component is unmounted
@@ -130,15 +218,25 @@ onUnmounted(() => {
 
 <template>
   <div class="product-page">
-    <div class="product-container">
+    <div v-if="loading" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Loading product details...</p>
+    </div>
+    
+    <div v-else-if="error" class="error-container">
+      <p>{{ error }}</p>
+      <button @click="fetchProduct">Try Again</button>
+    </div>
+    
+    <div v-else class="product-container">
       <!-- Image Gallery Section -->
       <div class="image-gallery">
         <div class="main-image">
           <img :src="product.images[currentImageIndex]" :alt="product.title" />
-          <button class="nav-button prev" @click="previousImage">❮</button>
-          <button class="nav-button next" @click="nextImage">❯</button>
+          <button v-if="product.images.length > 1" class="nav-button prev" @click="previousImage">❮</button>
+          <button v-if="product.images.length > 1" class="nav-button next" @click="nextImage">❯</button>
         </div>
-        <div class="thumbnail-list">
+        <div v-if="product.images.length > 1" class="thumbnail-list">
           <div
             v-for="(image, index) in product.images"
             :key="index"
@@ -154,7 +252,7 @@ onUnmounted(() => {
       <!-- Product Information Section -->
       <div class="product-info">
         <h1>{{ product.title }}</h1>
-        <div class="price">${{ product.price.toFixed(2) }}</div>
+        <div class="price">{{ product.price.toFixed(2) }} {{ itemStore.currentItem?.currency || 'NOK' }}</div>
 
         <div class="seller-info">
           <h3>Seller Information</h3>
@@ -220,6 +318,39 @@ onUnmounted(() => {
   margin: 0 auto;
 }
 
+.loading-container, .error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.loading-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid var(--accent-color);
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-container button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
 .product-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -249,38 +380,29 @@ onUnmounted(() => {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
   border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  padding: 1rem 0.75rem;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  transition: all 0.2s;
-  color: #ffffff;
-}
-
-.nav-button:hover {
-  background: rgba(0, 0, 0, 0.8);
-  color: var(--primary-color);
+  font-size: 1rem;
 }
 
 .nav-button.prev {
-  left: 1rem;
+  left: 0;
+  border-radius: 0 4px 4px 0;
 }
 
 .nav-button.next {
-  right: 1rem;
+  right: 0;
+  border-radius: 4px 0 0 4px;
 }
 
 .thumbnail-list {
   display: flex;
   gap: 0.5rem;
   overflow-x: auto;
-  padding: 0.5rem 0;
+  padding-bottom: 0.5rem;
 }
 
 .thumbnail {
@@ -289,12 +411,13 @@ onUnmounted(() => {
   border-radius: 4px;
   overflow: hidden;
   cursor: pointer;
-  border: 2px solid transparent;
-  transition: border-color 0.2s;
+  opacity: 0.7;
+  transition: opacity 0.2s;
 }
 
 .thumbnail.active {
-  border-color: var(--primary-color);
+  opacity: 1;
+  border: 2px solid var(--accent-color);
 }
 
 .thumbnail img {
@@ -309,29 +432,26 @@ onUnmounted(() => {
   gap: 2rem;
 }
 
-h1 {
+.product-info h1 {
+  margin: 0;
   font-size: 2rem;
-  color: #2c3e50;
-  margin-bottom: 0.5rem;
+  line-height: 1.2;
 }
 
 .price {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: bold;
-  color: var(--button-background);
+  color: var(--accent-color);
 }
 
-.seller-info,
-.product-details,
-.location {
-  background: #ffffff;
-  padding: 1.5rem;
+.seller-info, .product-details, .location {
+  border: 1px solid #eee;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
 }
 
-h3 {
-  color: #000000;
+.seller-info h3, .product-details h3, .location h3 {
+  margin-top: 0;
   margin-bottom: 1rem;
 }
 
@@ -342,90 +462,73 @@ h3 {
 }
 
 .seller-name {
-  font-weight: 600;
-  color: #000000;
+  font-weight: bold;
+  font-size: 1.1rem;
 }
 
 .seller-stats {
   display: flex;
   gap: 1rem;
-  color: #666;
 }
 
 .rating {
-  color: var(--primary-color);
-  font-weight: 600;
-}
-
-.response-time {
-  color: var(--primary-color);
-  font-size: 0.9rem;
+  color: #ff9800;
 }
 
 .description {
-  color: #666;
   line-height: 1.6;
-  margin-bottom: 1rem;
 }
 
 .specifications {
+  margin-top: 1rem;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
 }
 
 .spec-item {
   display: flex;
-  gap: 0.5rem;
+  align-items: baseline;
 }
 
 .spec-label {
-  font-weight: 500;
-  color: #000000;
-}
-
-.spec-value {
-  color: #666;
+  font-weight: bold;
+  margin-right: 0.5rem;
 }
 
 .map-container {
   height: 300px;
-  border-radius: 4px;
+  border-radius: 8px;
   margin-top: 1rem;
-  border: 1px solid #e0e0e0;
-  z-index: 1;
 }
 
 .actions {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
+  margin-top: 2rem;
 }
 
 .contact-seller {
-  width: 100%;
-  padding: 1rem;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--button-background);
+  color: var(--button-text-color);
   border: none;
   border-radius: 4px;
+  font-size: 1rem;
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s;
-  background-color: var(--primary-color);
-  color: #000000;
+  transition: background-color 0.2s;
 }
 
 .contact-seller:hover {
-  background-color: var(--button-background);
+  background-color: var(--button-hover-background);
 }
 
-/* Modal Styles */
+/* Modal styles */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -433,67 +536,52 @@ h3 {
 }
 
 .modal-content {
-  background: white;
+  background-color: white;
   padding: 2rem;
   border-radius: 8px;
-  width: 90%;
+  width: 100%;
   max-width: 500px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .modal-content h2 {
-  color: #000000;
-  margin-bottom: 0.5rem;
+  margin-top: 0;
 }
 
 .product-reference {
   color: #666;
   margin-bottom: 1rem;
-  font-size: 0.9rem;
 }
 
-.modal-content textarea {
+textarea {
   width: 100%;
-  padding: 1rem;
+  padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 4px;
-  margin-bottom: 1rem;
   resize: vertical;
 }
 
 .modal-actions {
   display: flex;
-  gap: 1rem;
   justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
 }
 
-.cancel-button,
-.send-button {
-  padding: 0.75rem 1.5rem;
+.cancel-button, .send-button {
+  padding: 0.5rem 1rem;
   border-radius: 4px;
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s;
 }
 
 .cancel-button {
-  background-color: #f8f8f8;
-  color: #666;
+  background: none;
   border: 1px solid #ddd;
 }
 
-.cancel-button:hover {
-  background-color: #f0f0f0;
-}
-
 .send-button {
-  background-color: var(--primary-color);
-  color: #000000;
+  background-color: var(--accent-color);
+  color: white;
   border: none;
-}
-
-.send-button:hover:not(:disabled) {
-  background-color: var(--button-background);
 }
 
 .send-button:disabled {
@@ -501,23 +589,9 @@ h3 {
   cursor: not-allowed;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
   .product-container {
     grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 640px) {
-  .product-page {
-    padding: 1rem;
-  }
-
-  .specifications {
-    grid-template-columns: 1fr;
-  }
-
-  .actions {
-    flex-direction: column;
   }
 }
 </style>
