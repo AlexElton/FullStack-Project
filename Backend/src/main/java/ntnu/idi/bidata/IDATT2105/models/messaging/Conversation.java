@@ -114,6 +114,12 @@ public class Conversation {
     return updatedAt;
   }
 
+  /**
+   * Compares this conversation to another object for equality.
+   * 
+   * @param o the object to compare to
+   * @return true if the object is equal to this conversation, false otherwise
+   */
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -123,6 +129,11 @@ public class Conversation {
     return id.equals(that.id);
   }
 
+  /**
+   * Returns the hash code value for this conversation.
+   * 
+   * @return the hash code value
+   */
   @Override
   public int hashCode() {
     return id.hashCode();

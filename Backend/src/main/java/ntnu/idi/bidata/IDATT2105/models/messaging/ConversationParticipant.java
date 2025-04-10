@@ -81,6 +81,12 @@ public class ConversationParticipant {
     this.lastReadAt = lastReadAt;
   }
 
+  /**
+   * Override equals method to compare to ConversationParticipant objects.
+   * 
+   * @param o the object to compare with
+   * @return true if the objects are equal, false otherwise
+   */
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -90,6 +96,11 @@ public class ConversationParticipant {
     return conversation.equals(that.conversation) && user.equals(that.user);
   }
 
+  /**
+   * Override hashCode method to generate a hash code for the ConversationParticipant object.
+   * 
+   * @return the hash code of the object
+   */
   @Override
   public int hashCode() {
     return java.util.Objects.hash(conversation, user);

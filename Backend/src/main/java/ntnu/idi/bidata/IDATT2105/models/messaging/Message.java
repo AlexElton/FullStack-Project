@@ -55,11 +55,20 @@ public class Message {
   @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
-  // Default constructor
+  /**
+   * Default constructor for JPA.
+   */
   public Message() {
   }
 
-  // Constructor with all required fields
+  /**
+   * Constructor for creating a new message.
+   * 
+   * @param conversation the conversation this message belongs to
+   * @param sender the user sending the message
+   * @param receiver the user receiving the message
+   * @param messageText the text of the message
+   */
   public Message(Conversation conversation, User sender, User receiver, String messageText) {
     this.conversation = conversation;
     this.sender = sender;

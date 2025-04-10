@@ -25,6 +25,11 @@ import ntnu.idi.bidata.IDATT2105.models.enums.ItemCondition;
 import ntnu.idi.bidata.IDATT2105.models.enums.ItemStatus;
 import ntnu.idi.bidata.IDATT2105.models.user.User;
 
+/**
+ * JPA entity representing an item listing in the system.
+ * 
+ * This class is used to map the items table in the database to a Java object.
+ */
 @Entity
 @Table(name = "items", indexes = {
   @Index(name = "idx_seller", columnList = "seller_id"),
