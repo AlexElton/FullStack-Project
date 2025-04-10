@@ -7,6 +7,8 @@ import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -37,13 +39,15 @@ public class Category {
   @Column(name = "category_id", nullable = false)
   private Long categoryId;
  
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "parent_category_id")
   private Category parentCategory;
 
+  @JsonIgnore
   @OneToMany(mappedBy = "parentCategory")
   private List<Category> childCategories = new ArrayList<>();
   
+  @JsonIgnore
   @OneToMany(mappedBy = "category")
   private List<Item> items = new ArrayList<>();
 

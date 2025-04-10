@@ -22,7 +22,11 @@ CREATE TABLE IF NOT EXISTS categories (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     parent_category_id BIGINT,
+    display_order INT DEFAULT 0 NOT NULL,
+    icon_url VARCHAR(255),
+    is_active BOOLEAN DEFAULT TRUE NOT NULL,
     created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
     FOREIGN KEY (parent_category_id) REFERENCES categories(category_id)
 );
 
