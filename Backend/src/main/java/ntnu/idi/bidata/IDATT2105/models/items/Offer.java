@@ -17,6 +17,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import ntnu.idi.bidata.IDATT2105.models.enums.OfferStatus;
 import ntnu.idi.bidata.IDATT2105.models.transaction.Transaction;
@@ -67,7 +68,7 @@ public class Offer {
   @Column(name = "updated_at", nullable = false)
   private LocalDateTime updatedAt;
 
-  @Column
+  @OneToOne(mappedBy = "offer", fetch = FetchType.LAZY)
   private Transaction transaction;
 
   // Default constructor
