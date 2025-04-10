@@ -1,11 +1,14 @@
 <script setup>
-import { provide } from 'vue';
-import { unreadCount } from '@/composables/messageStore';
+import { provide, computed } from 'vue';
+import { useMessageStore } from '@/composables/messageStore';
 import { RouterView } from 'vue-router';
 import NavBar from './components/NavBar.vue';
 
-// Provide the actual computed unreadCount from the message store
-provide('unreadCount', unreadCount);
+// Use the message store composable
+const messageStore = useMessageStore();
+
+// Provide the unreadCount from the message store
+provide('unreadCount', messageStore.unreadCount);
 </script>
 
 <template>
