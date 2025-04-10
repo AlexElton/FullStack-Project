@@ -8,5 +8,8 @@ public enum NotificationType {
     OFFER,
     TRANSACTION,
     SYSTEM,
-    REVIEW
+    REVIEW,
+    PAYMENT_INITIATED,
+    PAYMENT_COMPLETED,
+    PAYMENT_CANCELLED
 }

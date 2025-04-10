@@ -1,4 +1,4 @@
-package ntnu.idi.bidata.IDATT2105.repos.items;
+package ntnu.idi.bidata.IDATT2105.repos.item;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,4 +42,6 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
    */
   @Query("SELECT t FROM Tag t JOIN t.itemTags it GROUP BY t ORDER BY COUNT(it) DESC")
   List<Tag> findMostUsedTags(@Param("limit") int limit);
+
+  List<Tag> findByNameInIgnoreCase(List<String> tags);
 }

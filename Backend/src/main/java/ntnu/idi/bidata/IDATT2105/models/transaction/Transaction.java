@@ -86,6 +86,9 @@ public class Transaction {
   @Column(name = "completed_at")
   private LocalDateTime completedAt;
 
+  @Column(name = "cancelled_at")
+  private LocalDateTime cancelledAt;
+
   /**
    * Default constructor for JPA.
    */
@@ -204,6 +207,18 @@ public class Transaction {
 
   public void setCompletedAt(LocalDateTime completedAt) {
     this.completedAt = completedAt;
+  }
+
+  public void setCreatedAt(LocalDateTime createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  public void setCancelledAt(LocalDateTime cancelledAt) {
+    this.cancelledAt = cancelledAt;
+  }
+
+  public LocalDateTime getCancelledAt() {
+    return cancelledAt;
   }
 
   /**

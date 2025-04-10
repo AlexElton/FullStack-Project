@@ -100,4 +100,14 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
   @Transactional
   @Query("DELETE FROM Notification n WHERE n.isRead = true AND n.createdAt < ?1")
   void deleteReadNotificationsOlderThan(LocalDateTime date);
+
+  /**
+   * Finds read notifications older than a specified date.
+   * 
+   * @param threshold the date threshold for filtering
+   * @return a list of read notifications older than the specified date
+   */
+  @Query("SELECT n FROM Notification n WHERE n.isRead = true AND n.createdAt < ?1")
+  @Transactional(readOnly = true)
+  List<Notification> findByIsReadTrueAndCreatedAtBefore(LocalDateTime threshold);
 }

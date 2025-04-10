@@ -1,4 +1,4 @@
-package ntnu.idi.bidata.IDATT2105.repos.items;
+package ntnu.idi.bidata.IDATT2105.repos.item;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -90,4 +90,26 @@ public interface OfferRepository extends JpaRepository<Offer, Long> {
    * @return a list of offers that have expired
    */
   List<Offer> findByExpiresAtBefore(LocalDateTime date);
+
+
+  /**
+   * Counts the number of offers made by a specific buyer with a specific status.
+   * 
+   * @param buyer the user who made the offers
+   * @param status the status to filter by
+   * @return the count of offers made by the specified buyer with the specified status
+   */
+  @Query("SELECT COUNT(o) FROM Offer o WHERE o.buyer = ?1 AND o.status = ?2")
+  int countBySellerAndStatus(User seller, OfferStatus pending);
+
+  /**
+   * Finds offers for a specific item with a specific status, excluding a specific offer ID.
+   * 
+   * @param item the item to find offers for
+   * @param status the status to filter by
+   * @param offerId the ID of the offer to exclude
+   * @return a list of offers for the specified item with the specified status, excluding the specified offer ID
+   */
+  @Query("SELECT o FROM Offer o WHERE o.item = ?1 AND o.status = ?2 AND o.id <> ?3")
+  List<Offer> findByItemAndStatusAndIdNot(Item item, OfferStatus pending, Long offerId);
 }

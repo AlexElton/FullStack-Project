@@ -1,4 +1,4 @@
-package ntnu.idi.bidata.IDATT2105.repos.items;
+package ntnu.idi.bidata.IDATT2105.repos.item;
 
 import java.util.List;
 import java.util.Optional;

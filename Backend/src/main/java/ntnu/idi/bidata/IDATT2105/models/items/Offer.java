@@ -19,6 +19,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import ntnu.idi.bidata.IDATT2105.models.enums.OfferStatus;
+import ntnu.idi.bidata.IDATT2105.models.transaction.Transaction;
 import ntnu.idi.bidata.IDATT2105.models.user.User;
 
 /**
@@ -65,6 +66,9 @@ public class Offer {
   @UpdateTimestamp
   @Column(name = "updated_at", nullable = false)
   private LocalDateTime updatedAt;
+
+  @Column
+  private Transaction transaction;
 
   // Default constructor
   public Offer() {
@@ -150,6 +154,23 @@ public class Offer {
     return updatedAt;
   }
 
+  public void setCreatedAt(LocalDateTime createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  public void setUpdatedAt(LocalDateTime updatedAt) {
+    this.updatedAt = updatedAt;
+  }
+
+  public Transaction getTransaction() {
+    return transaction;
+  }
+
+  public void setTransaction(Transaction transaction) {
+    this.transaction = transaction;
+  }
+
+  
   /**
    * Compares this offer to another object for equality.
    * 

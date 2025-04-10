@@ -1,4 +1,4 @@
-package ntnu.idi.bidata.IDATT2105.repos.items;
+package ntnu.idi.bidata.IDATT2105.repos.item;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -31,7 +32,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
    * @param seller the User who listed the items
    * @return a list of Items from the specified seller
    */
-  List<Item> findBySeller(User seller);
+  Page<Item> findBySeller(User seller, Pageable pageable);
 
   /**
    * Finds all Items with a specific status, with pagination.
@@ -108,4 +109,75 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
    */
   @Query(value = "SELECT * FROM items WHERE ST_Distance_Sphere(point(longitude, latitude), point(?1, ?2)) <= ?3", nativeQuery = true)
   List<Item> findItemsNearLocation(double longitude, double latitude, double distanceMeters);
+
+  /**
+   * Counts the number of Items in a specific category.
+   * 
+   * @param category the category to filter by
+   * @return the count of Items in the specified category
+   */
+  @Query("SELECT COUNT(i) FROM Item i WHERE i.category = ?1")
+  int countByCategory(Category category);
+
+  /**
+   * Finds Items with a specific status, ordered by views count in descending
+   * order, with pagination.
+   * 
+   * @param status   the status to filter by
+   * @param pageable the pagination information
+   * @return a paginated list of Items with the specified status, ordered by views
+   *         count
+   */
+  @Query("SELECT i FROM Item i WHERE i.status = ?1 ORDER BY i.viewsCount DESC")
+  List<Item> findByStatusOrderByViewsCountDesc(ItemStatus active, int limit);
+
+  /**
+   * Finds all items by their ID and seller.
+   * 
+   * @param user the seller of the item
+   * @param active the status of the item
+   * @return the item if found, or null if not found
+   */
+  @Query("SELECT i FROM Item i WHERE i.seller = ?1 AND i.status = ?2")
+  List<Item> findBySellerAndStatus(User user, ItemStatus active);
+
+  /**
+   * Counts the number of items with a specific status.
+   *
+   * @param active the status to filter by
+   * @return the count of items with the specified status
+   */
+  int countByStatus(ItemStatus active);
+
+  /**
+   * Finds all items by their ID and seller, ordered by creation date (newest
+   *
+   * @param doubleValue the first double value (longitude)
+   * @param doubleValue2 the second double value (latitude)
+   * @param distance the distance in meters
+   * @return a list of item IDs within the specified distance from the location
+   */
+  @Query(value = "SELECT item_id FROM items WHERE ST_Distance_Sphere(point(longitude, latitude), point(?1, ?2)) <= ?3", nativeQuery = true)
+  @Modifying
+  List<Long> findItemIdsNearLocation(double doubleValue, double doubleValue2, Double distance);
+
+
+  /**
+   * Finds all item IDs by their tag names.
+   * 
+   * @param tags the list of tag names
+   * @return a list of item IDs associated with the specified tags
+   */
+  @Query(value = "SELECT i.item_id FROM items i JOIN item_tags it ON i.item_id = it.item_id JOIN tags t ON it.tag_id = t.tag_id WHERE t.name IN (:tags)", nativeQuery = true)
+  List<Long> findItemIdsByTagNames(List<String> tags);
+
+  /**
+   * Finds all items matching the given specification with pagination.
+   * 
+   * @param spec     the specification to filter by
+   * @param pageable the pagination information
+   * @return a paginated list of items matching the specification
+   */
+  @Query("SELECT i FROM Item i WHERE i.status = ?1")
+  Page<Item> findAll(Specification<Item> spec, Pageable pageable);
 }

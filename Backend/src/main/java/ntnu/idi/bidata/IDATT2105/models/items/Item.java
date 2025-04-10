@@ -112,8 +112,24 @@ public class Item {
   @OneToMany(mappedBy = "item")
   private List<ItemImage> images = new ArrayList<>();
 
+  public Integer getViewsCount() {
+    return viewsCount;
+  }
+
+  public void setViewsCount(Integer viewsCount) {
+    this.viewsCount = viewsCount;
+  }
+
   public Long getItemId() {
     return itemId;
+  }
+
+  public void setStatus(ItemStatus status) {
+    this.status = status;
+  }
+
+  public Boolean getAllowOffers() {
+    return allowOffers;
   }
 
   public void setItemId(Long itemId) {
@@ -174,5 +190,41 @@ public class Item {
 
   public void setCurrency(String currency) {
     this.currency = currency;
+  }
+
+  public ItemStatus getStatus() {
+    return status;
+  }
+
+  public void setCondition(ItemCondition condition) {
+    this.condition = condition;
+  }
+
+  public void setAcceptVipps(Boolean acceptVipps) {
+    this.acceptVipps = acceptVipps;
+  }
+
+  public void setQuantity(Integer quantity) {
+    this.quantity = quantity;
+  }
+
+  public void setAllowOffers(Boolean allowOffers) {
+    this.allowOffers = allowOffers;
+  }
+
+  public void setLocationAddress(String locationAddress) {
+    this.locationAddress = locationAddress;
+  }
+
+  public void setLatitude(BigDecimal latitude) {
+    this.latitude = latitude;
+  }
+
+  public void setLongitude(BigDecimal longitude) {
+    this.longitude = longitude;
+  }
+
+  public void setExpiresAt(LocalDateTime expiresAt) {
+    this.expiresAt = expiresAt;
   }
 }
