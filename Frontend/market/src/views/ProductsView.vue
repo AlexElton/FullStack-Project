@@ -3,7 +3,6 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSearchStore } from '../stores/searchStore'
 import ProductCard from '@/components/ProductCard.vue'
-import { ref, computed } from 'vue'
 
 const route = useRoute()
 const searchStore = useSearchStore()
@@ -88,9 +87,7 @@ const products = [
 ]
 
 // State for filters and search
-const selectedCategory = ref('All')
 const selectedSort = ref('newest')
-const searchQuery = ref('')
 
 // Computed property to filter and sort products
 const filteredProducts = computed(() => {
@@ -171,27 +168,12 @@ watch(selectedCategory, (newValue) => {
   }
 }, { immediate: true })
 
-// Filter products based on search and category
-const filteredProducts = computed(() => {
-  return products.filter(product => {
-    const matchesSearch = searchQuery.value === '' || 
-      product.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchQuery.value.toLowerCase())
-    
-    const matchesCategory = selectedCategory.value === 'All' || 
-      product.category === selectedCategory.value
-    
-    return matchesSearch && matchesCategory
-  })
-})
 
 // Placeholder for API integration
 const fetchProducts = () => {
   // TODO: Implement API call to fetch products
   console.log('Fetching products from API...')
 }
-
-const categories = ['All', 'Electronics', 'Clothing', 'Books', 'Home & Garden']
 
 // Handle category change
 const handleCategoryChange = (event) => {
