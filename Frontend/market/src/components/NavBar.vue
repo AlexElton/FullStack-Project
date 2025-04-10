@@ -62,7 +62,7 @@ const isMenuOpen = ref(false)
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   position: sticky;
   top: 0;
-  z-index: 10000;
+  z-index: 1000;
   width: 100%;
 }
 
