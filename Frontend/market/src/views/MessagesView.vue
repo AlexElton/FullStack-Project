@@ -39,12 +39,12 @@ const selectMessage = (message) => {
           v-for="message in messages"
           :key="message.id"
           class="message-item"
-          :class="{ active: message.id === currentMessage.id, unread: message.unread }"
+          :class="{ active: message.id === currentMessage.id, unread: !message.read }"
           @click="selectMessage(message)"
         >
           <div class="message-item-image">
             <img :src="message.item.image" alt="Product thumbnail" />
-            <span v-if="message.unread" class="unread-badge">1</span>
+            <span v-if="!message.read" class="unread-badge"></span>
           </div>
           <div class="message-item-content">
             <div class="message-item-title">{{ message.item.title }}</div>
@@ -138,12 +138,24 @@ const selectMessage = (message) => {
 .message-header {
   padding: 1rem;
   border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .message-header h2 {
   margin: 0;
   font-size: 1.5rem;
   color: var(--text-color);
+}
+
+.unread-count-badge {
+  background-color: #1e88e5;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .message-items {
@@ -170,7 +182,33 @@ const selectMessage = (message) => {
 
 /* Highlight unread messages */
 .message-item.unread {
-  background-color: rgba(30, 136, 229, 0.05);
+  background-color: rgba(30, 136, 229, 0.1);
+  border-left: 4px solid #1e88e5;
+}
+
+.message-item.unread .message-item-title {
+  font-weight: 600;
+  color: #1e88e5;
+}
+
+.message-item.unread .message-item-preview {
+  color: #333;
+  font-weight: 500;
+}
+
+.unread-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #1e88e5;
+  color: white;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .message-item-image {
@@ -185,21 +223,6 @@ const selectMessage = (message) => {
   height: 100%;
   object-fit: cover;
   border-radius: 4px;
-}
-
-.unread-badge {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  background-color: #1e88e5;
-  color: white;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
 }
 
 .message-item-content {

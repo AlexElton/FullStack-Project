@@ -1,10 +1,10 @@
 <script setup>
 import { RouterLink } from 'vue-router'
-import { ref, inject } from 'vue'
+import { ref, computed } from 'vue'
+import { useMessageStore } from '../composables/messageStore'
 
-// Import the unreadCount computed property from parent component or store
-// For this example, we'll inject it as a dependency
-const unreadCount = inject('unreadCount', ref(0))
+// Use the message store instead of injection
+const { unreadCount } = useMessageStore()
 
 const isMenuOpen = ref(false)
 </script>
