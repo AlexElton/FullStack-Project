@@ -80,5 +80,133 @@ public class User {
   @Column(name = "last_login_at")
   private LocalDateTime lastLoginAt;
 
-  // TODO add getters and setters, based on what i need
+    public Long getId() {
+    return id;
+  }
+
+  public String getUsername() {
+    return username;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  public String getFirstName() {
+    return firstName;
+  }
+
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
+
+  public String getLastName() {
+    return lastName;
+  }
+
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
+  }
+
+  public String getPhoneNumber() {
+    return phoneNumber;
+  }
+
+  public void setPhoneNumber(String phoneNumber) {
+    this.phoneNumber = phoneNumber;
+  }
+
+  public String getProfilePicUrl() {
+    return profilePicUrl;
+  }
+
+  public void setProfilePicUrl(String profilePicUrl) {
+    this.profilePicUrl = profilePicUrl;
+  }
+
+  public String getBio() {
+    return bio;
+  }
+
+  public void setBio(String bio) {
+    this.bio = bio;
+  }
+
+  public Role getRole() {
+    return role;
+  }
+
+  public void setRole(Role role) {
+    this.role = role;
+  }
+
+  public AccountStatus getStatus() {
+    return status;
+  }
+
+  public void setStatus(AccountStatus status) {
+    this.status = status;
+  }
+
+  public LocalDateTime getCreatedAt() {
+    return createdAt;
+  }
+
+  public LocalDateTime getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public LocalDateTime getLastLoginAt() {
+    return lastLoginAt;
+  }
+
+  public void setLastLoginAt(LocalDateTime lastLoginAt) {
+    this.lastLoginAt = lastLoginAt;
+  }
+  
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    
+    User user = (User) o;
+    return id.equals(user.id) && 
+           username.equals(user.username) && 
+           email.equals(user.email);
+  }
+
+  @Override
+  public int hashCode() {
+    return java.util.Objects.hash(id, username, email);
+  }
+
+  @Override
+  public String toString() {
+    return "User{" +
+           "id=" + id +
+           ", username='" + username + '\'' +
+           ", email='" + email + '\'' +
+           ", firstName='" + firstName + '\'' +
+           ", lastName='" + lastName + '\'' +
+           ", role=" + role +
+           ", status=" + status +
+           '}';
+  }
 }
+
