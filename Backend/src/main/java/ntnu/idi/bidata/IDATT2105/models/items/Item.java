@@ -2,6 +2,8 @@ package ntnu.idi.bidata.IDATT2105.models.items;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -17,6 +19,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import ntnu.idi.bidata.IDATT2105.models.enums.ItemCondition;
 import ntnu.idi.bidata.IDATT2105.models.enums.ItemStatus;
@@ -101,6 +104,70 @@ public class Item {
   @Column(name = "expires_at")
   private LocalDateTime expiresAt;
 
-  // TODO add getters setters
+  @OneToMany(mappedBy = "item")
+  private List<ItemImage> images = new ArrayList<>();
 
+  public Long getItemId() {
+    return itemId;
+  }
+
+  public void setItemId(Long itemId) {
+    this.itemId = itemId;
+  }
+
+  public User getSeller() {
+    return seller;
+  }
+
+  public void setSeller(User seller) {
+    this.seller = seller;
+  }
+
+  public Category getCategory() {
+    return category;
+  }
+
+  public void setCategory(Category category) {
+    this.category = category;
+  }
+
+  public String getTitle() {
+    return title;
+  }
+
+  public void setTitle(String title) {
+    this.title = title;
+  }
+
+  public String getBriefDescription() {
+    return briefDescription;
+  }
+
+  public void setBriefDescription(String briefDescription) {
+    this.briefDescription = briefDescription;
+  }
+
+  public String getFullDescription() {
+    return fullDescription;
+  }
+
+  public void setFullDescription(String fullDescription) {
+    this.fullDescription = fullDescription;
+  }
+
+  public BigDecimal getPrice() {
+    return price;
+  }
+
+  public void setPrice(BigDecimal price) {
+    this.price = price;
+  }
+
+  public String getCurrency() {
+    return currency;
+  }
+
+  public void setCurrency(String currency) {
+    this.currency = currency;
+  }
 }
