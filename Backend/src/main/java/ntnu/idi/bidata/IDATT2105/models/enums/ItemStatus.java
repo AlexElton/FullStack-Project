@@ -5,5 +5,5 @@ package ntnu.idi.bidata.IDATT2105.models.enums;
  * The status can be either DRAFT, ACTIVE, RESERVED, SOLD, ARCHIVED, or DELETED.
  */
 public enum ItemStatus {
-  DRAFT, ACTIVE, RESERVED, SOLD, ARCHIVED, DELETED
+  DRAFT, ACTIVE, RESERVED, SOLD, ARCHIVED, DELETED, PENDING_PAYMENT
 }
