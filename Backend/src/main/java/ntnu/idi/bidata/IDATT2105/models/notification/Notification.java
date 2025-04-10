@@ -58,11 +58,20 @@ public class Notification {
   @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
-  // Default constructor
+  /**
+   * Default constructor for JPA.
+   */
   public Notification() {
   }
 
-  // Constructor with required fields
+  /**
+   * Constructor for creating a notification with user, type, title, and message.
+   * 
+   * @param user the user associated with the notification
+   * @param type the type of notification
+   * @param title the title of the notification
+   * @param message the message of the notification
+   */
   public Notification(User user, NotificationType type, String title, String message) {
     this.user = user;
     this.type = type;

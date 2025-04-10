@@ -86,11 +86,21 @@ public class Transaction {
   @Column(name = "completed_at")
   private LocalDateTime completedAt;
 
-  // Default constructor
+  /**
+   * Default constructor for JPA.
+   */
   public Transaction() {
   }
 
-  // Constructor with required fields
+  /**
+   * Constructor for creating a transaction with required fields.
+   * 
+   * @param item the item involved in the transaction
+   * @param seller the seller of the item
+   * @param buyer the buyer of the item
+   * @param amount the amount of money involved in the transaction
+   * @param paymentMethod the payment method used for the transaction
+   */
   public Transaction(Item item, User seller, User buyer, BigDecimal amount, PaymentMethod paymentMethod) {
     this.item = item;
     this.seller = seller;
@@ -196,6 +206,12 @@ public class Transaction {
     this.completedAt = completedAt;
   }
 
+  /**
+   * Override equals and hashCode methods to compare transactions based on their ID.
+   * 
+   * @param o the object to compare to
+   * @return true if the object is equal to this transaction, false otherwise
+   */
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;

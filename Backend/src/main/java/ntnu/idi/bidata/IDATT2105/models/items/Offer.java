@@ -150,6 +150,12 @@ public class Offer {
     return updatedAt;
   }
 
+  /**
+   * Compares this offer to another object for equality.
+   * 
+   * @param o the object to compare to
+   * @return true if the object is an Offer with the same ID, false otherwise
+   */
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -159,6 +165,11 @@ public class Offer {
     return id.equals(offer.id);
   }
 
+  /**
+   * Returns the hash code of this offer.
+   * 
+   * @return the hash code of this offer
+   */
   @Override
   public int hashCode() {
     return id.hashCode();

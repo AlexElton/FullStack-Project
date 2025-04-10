@@ -176,6 +176,13 @@ public class Category {
     return updatedAt;
   }
 
+  /**
+   * Compares this category to another object for equality.
+   * Two categories are considered equal if they have the same categoryId.
+   * 
+   * @param o the object to compare to
+   * @return true if the object is equal to this category, false otherwise
+   */
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -185,6 +192,12 @@ public class Category {
     return categoryId.equals(category.categoryId);
   }
 
+  /**
+   * Returns the hash code of this category.
+   * The hash code is based on the categoryId.
+   * 
+   * @return the hash code of this category
+   */
   @Override
   public int hashCode() {
     return categoryId.hashCode();

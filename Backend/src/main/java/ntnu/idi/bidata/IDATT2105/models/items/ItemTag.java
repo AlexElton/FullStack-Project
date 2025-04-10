@@ -33,10 +33,19 @@ public class ItemTag {
   @JoinColumn(name = "tag_id", nullable = false)
   private Tag tag;
 
+  /**
+   * Default constructor for JPA.
+   */
   public ItemTag() {
     // Default constructor
   }
 
+  /**
+   * This constructor is used when creating a new ItemTag.
+   *
+   * @param item the item associated with the tag
+   * @param tag  the tag associated with the item
+   */
   public ItemTag(Item item, Tag tag) {
     this.item = item;
     this.tag = tag;

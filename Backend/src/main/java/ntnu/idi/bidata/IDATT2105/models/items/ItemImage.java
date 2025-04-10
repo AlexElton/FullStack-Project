@@ -46,11 +46,20 @@ public class ItemImage {
   @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
-  // Default constructor
+  /**
+   * Default constructor for JPA.
+   */
   public ItemImage() {
   }
 
-  // Constructor with required fields
+
+  /**
+   * Constructor for creating an ItemImage with item and imageUrl.
+   * This constructor is used when creating a new image for an item.
+   *
+   * @param item the item associated with the image
+   * @param imageUrl the URL of the image
+   */
   public ItemImage(Item item, String imageUrl) {
     this.item = item;
     this.imageUrl = imageUrl;

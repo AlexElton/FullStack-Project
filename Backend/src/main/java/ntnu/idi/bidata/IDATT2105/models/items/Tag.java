@@ -78,6 +78,13 @@ public class Tag {
     this.itemTags = itemTags;
   }
 
+  /**
+   * Overrides the equals method to compare Tag objects based on their id and name.
+   *
+   * @param o the object to compare with
+   * @return true if the objects are equal, false otherwise
+   * 
+   */
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -89,6 +96,11 @@ public class Tag {
     return name.equals(tag.name);
   }
 
+  /**
+   * Overrides the hashCode method to generate a hash code based on the id and name.
+   * 
+   * @return the hash code of the Tag object
+   */
   @Override
   public int hashCode() {
     int result = id.hashCode();

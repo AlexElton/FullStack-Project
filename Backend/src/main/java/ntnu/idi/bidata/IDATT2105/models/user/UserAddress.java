@@ -72,7 +72,7 @@ public class UserAddress {
   public UserAddress() {
   }
 
-  // Constructor with required fields
+  // Constructdr with required fields
   public UserAddress(User user, String addressLine1, String city, String postalCode, String country) {
     this.user = user;
     this.addressLine1 = addressLine1;
