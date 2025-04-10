@@ -22,14 +22,7 @@ provide('unreadCount', unreadCount);
 
 
 <style>
-:root {
-  --primary-color: var(--primary-color);
-  --text-color: var(--text-color);
-  --background-color: var(--background-color);
-  --card-background: var(--card-background);
-  --accent-color: var(--accent-color);
-}
-
+/* Remove the CSS variable overrides that might be causing issues */
 * {
   margin: 0;
   padding: 0;
@@ -38,8 +31,6 @@ provide('unreadCount', unreadCount);
 
 body {
   font-family: Arial, sans-serif;
-  color: var(--text-color);
-  background-color: var(--background-color);
   line-height: 1.6;
 }
 

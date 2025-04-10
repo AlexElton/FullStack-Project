@@ -1,6 +1,15 @@
 <script setup>
+import { ref, onMounted, watch, computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { useSearchStore } from '../stores/searchStore'
 import ProductCard from '@/components/ProductCard.vue'
 import { ref, computed } from 'vue'
+
+const route = useRoute()
+const searchStore = useSearchStore()
+
+const searchQuery = ref('')
+const selectedCategory = ref('All')
 
 // Sample data - will be replaced with API calls
 const products = [
@@ -115,6 +124,67 @@ const filteredProducts = computed(() => {
   }
 })
 
+const categories = ['All', 'Electronics', 'Fashion', 'Home & Garden', 'Toys & Games', 
+  'Vehicles', 'Books', 'Music & Movies', 'Sports & Outdoors', 'Health & Beauty',
+  'Groceries', 'Office Supplies', 'Pet Supplies', 'Jewelry & Accessories',
+  'Tools & Industrial', 'Art & Collectibles']
+
+// Initialize search and category from store or route
+onMounted(() => {
+  console.log('ProductsView mounted')
+  console.log('Route query:', route.query)
+  console.log('Store state:', {
+    lastSearch: searchStore.lastSearch,
+    lastCategory: searchStore.lastCategory
+  })
+
+  // Handle category from route or store
+  if (route.query.category) {
+    console.log('Setting category from route:', route.query.category)
+    selectedCategory.value = route.query.category
+    searchStore.setCategory(route.query.category)
+  } else if (searchStore.lastCategory) {
+    console.log('Setting category from store:', searchStore.lastCategory)
+    selectedCategory.value = searchStore.lastCategory
+  }
+  
+  // Handle search from store
+  if (searchStore.lastSearch) {
+    console.log('Setting search from store:', searchStore.lastSearch)
+    searchQuery.value = searchStore.lastSearch
+  }
+})
+
+// Watch for search changes
+watch(searchQuery, (newValue) => {
+  console.log('Search query changed:', newValue)
+  searchStore.setSearch(newValue)
+}, { immediate: true })
+
+// Watch for category changes
+watch(selectedCategory, (newValue) => {
+  console.log('Category changed:', newValue)
+  if (newValue !== 'All') {
+    searchStore.setCategory(newValue)
+  } else {
+    searchStore.setCategory('')
+  }
+}, { immediate: true })
+
+// Filter products based on search and category
+const filteredProducts = computed(() => {
+  return products.filter(product => {
+    const matchesSearch = searchQuery.value === '' || 
+      product.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchQuery.value.toLowerCase())
+    
+    const matchesCategory = selectedCategory.value === 'All' || 
+      product.category === selectedCategory.value
+    
+    return matchesSearch && matchesCategory
+  })
+})
+
 // Placeholder for API integration
 const fetchProducts = () => {
   // TODO: Implement API call to fetch products
@@ -194,7 +264,7 @@ const handleSearchKeyup = (event) => {
     <div class="sell-section">
       <h2>Want to sell something?</h2>
       <p>Create an account and start selling your items today!</p>
-      <button class="sell-button">Start Selling</button>
+      <router-link to="/sell" class="sell-button">Start Selling</router-link>
     </div>
   </div>
 </template>
