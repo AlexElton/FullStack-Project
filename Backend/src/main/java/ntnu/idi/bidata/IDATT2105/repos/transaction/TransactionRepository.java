@@ -38,7 +38,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
    * @param seller the user who sold the items
    * @return a list of transactions where the specified user is the seller
    */
-  List<Transaction> findBySeller(User seller);
+  Page<Transaction> findBySeller(User seller, Pageable pageable);
   
   /**
    * Finds transactions where a specific user is the seller, ordered by creation date (newest first), with pagination.
@@ -53,9 +53,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
    * Finds all transactions where a specific user is the buyer.
    * 
    * @param buyer the user who bought the items
-   * @return a list of transactions where the specified user is the buyer
+   * @return a pageination of transactions where the specified user is the buyer
    */
-  List<Transaction> findByBuyer(User buyer);
+  Page<Transaction> findByBuyer(User buyer, Pageable pageable);
   
   /**
    * Finds transactions where a specific user is the buyer, ordered by creation date (newest first), with pagination.
@@ -100,4 +100,46 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
    */
   @Query("SELECT t FROM Transaction t WHERE t.createdAt BETWEEN ?1 AND ?2")
   List<Transaction> findTransactionsInDateRange(LocalDateTime start, LocalDateTime end);
+
+  /**
+   * Finds transactions where a specific user is the buyer and has a specific status, with pagination.
+   * 
+   * @param buyer the user who is buying the items
+   * @param status the status to filter by
+   * @param pageable the pagination information
+   * @return a paginated list of transactions where the specified user is the buyer and has the specified status
+   */
+  @Query("SELECT t FROM Transaction t WHERE t.buyer = ?1 AND t.status = ?2")
+  Page<Transaction> findByBuyerAndStatus(User buyer, TransactionStatus status, Pageable pageable);
+
+  /**
+   * Finds transactions where a specific user is the seller and has a specific status, with pagination.
+   * 
+   * @param seller the user who sold the items
+   * @param status the status to filter by
+   * @param pageable the pagination information
+   * @return a paginated list of transactions where the specified user is the seller and has the specified status
+   */
+  @Query("SELECT t FROM Transaction t WHERE t.seller = ?1 AND t.status = ?2")
+  Page<Transaction> findBySellerAndStatus(User seller, TransactionStatus status, Pageable pageable);
+
+  /**
+   * Counts the number of transactions where a specific user is the seller and has a specific status.
+   * 
+   * @param seller the user who sold the items
+   * @param completed the status to filter by
+   * @return the count of transactions where the specified user is the seller and has the specified status
+   */
+  @Query("SELECT COUNT(t) FROM Transaction t WHERE t.seller = ?1 AND t.status = ?2")
+  long countBySellerAndStatus(User seller, TransactionStatus completed);
+
+  /**
+   * Finds transactions where a specific user is the buyer and has a specific status.
+   * 
+   * @param buyer the user who bought the items
+   * @param status the status to filter by
+   * @return a list of transactions where the specified user is the buyer and has the specified status
+   */
+  @Query("SELECT t FROM Transaction t WHERE t.buyer = ?1 AND t.status = ?2")
+  List<Transaction> findCompletedTransactionsBetweenUsers(Long reviewerId, Long reviewedUserId);
 }

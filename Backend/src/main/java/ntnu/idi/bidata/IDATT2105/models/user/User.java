@@ -1,9 +1,14 @@
 package ntnu.idi.bidata.IDATT2105.models.user;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Collections;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,7 +35,7 @@ import ntnu.idi.bidata.IDATT2105.models.enums.Role;
   @Index(name = "idx_role", columnList = "role"),
   @Index(name = "idx_status", columnList = "status")
 })
-public class User {
+public class User implements UserDetails {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,7 +49,7 @@ public class User {
   private String email;
 
   @Column(nullable = false, name = "password_hash")
-  private String password;
+  private String passwordHash;
 
   @Column(name = "first_name")
   private String firstName;
@@ -100,12 +105,12 @@ public class User {
     this.email = email;
   }
 
-  public String getPassword() {
-    return password;
+  public String getPasswordHash() {
+    return passwordHash;
   }
 
-  public void setPassword(String password) {
-    this.password = password;
+  public void setPasswordHash(String password) {
+    this.passwordHash = password;
   }
 
   public String getFirstName() {
@@ -178,6 +183,44 @@ public class User {
 
   public void setLastLoginAt(LocalDateTime lastLoginAt) {
     this.lastLoginAt = lastLoginAt;
+  }
+
+  public void setCreatedAt(LocalDateTime createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  public void setUpdatedAt(LocalDateTime updatedAt) {
+    this.updatedAt = updatedAt;
+  }
+
+  @Override
+  public String getPassword() {
+    return passwordHash;
+  }
+
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name()));
+  }
+
+  @Override
+  public boolean isAccountNonExpired() {
+    return true;
+  }
+
+  @Override
+  public boolean isAccountNonLocked() {
+    return status != AccountStatus.SUSPENDED;
+  }
+
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return true;
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return status == AccountStatus.ACTIVE;
   }
   
   @Override

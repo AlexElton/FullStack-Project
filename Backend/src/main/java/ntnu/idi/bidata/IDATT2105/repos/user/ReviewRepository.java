@@ -94,4 +94,14 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
    * @return a list of hidden reviews
    */
   List<Review> findByIsVisibleFalse();
+
+  /**
+   * Finds reviews written by a specific user, ordered by creation date (newest first), with pagination.
+   *
+   * @param reviewer the user who wrote the reviews
+   * @param pageable the pagination information
+   * @return a paginated list of reviews written by the specified user, ordered by creation date
+   */
+  @Query("SELECT r FROM Review r WHERE r.reviewer = ?1 ORDER BY r.createdAt DESC")
+  Page<Review> findByReviewerOrderByCreatedAtDesc(User reviewer, Pageable pageable);
 }
