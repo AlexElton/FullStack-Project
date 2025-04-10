@@ -220,4 +220,17 @@ public class AuthService {
         }
         return userRepository.existsByUsername(username);
     }
+    
+    /**
+     * Gets a user's role by their ID
+     * 
+     * @param userId the user ID
+     * @return the user's role
+     * @throws ApiException if user not found
+     */
+    public Role getUserRole(Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ApiException("User not found", HttpStatus.NOT_FOUND));
+        return user.getRole();
+    }
 }
