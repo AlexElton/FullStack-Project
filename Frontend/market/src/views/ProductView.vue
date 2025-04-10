@@ -1,11 +1,26 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
+import 'leaflet/dist/leaflet.css'
+import L from 'leaflet'
 
 const route = useRoute()
 const currentImageIndex = ref(0)
 const messageText = ref('')
 const isMessageModalOpen = ref(false)
+const mapContainer = ref(null)
+let map = null
+
+// Fix for Leaflet marker icons
+const fixLeafletIcon = () => {
+  // Fix for the default icon
+  delete L.Icon.Default.prototype._getIconUrl
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  })
+}
 
 // Sample data - will be replaced with API calls
 const product = {
@@ -71,6 +86,46 @@ const sendMessage = () => {
   })
   closeMessageModal()
 }
+
+// Initialize the map
+const initMap = () => {
+  if (!mapContainer.value) return
+  
+  // Fix Leaflet icon issue
+  fixLeafletIcon()
+  
+  // Create the map instance
+  map = L.map(mapContainer.value).setView(
+    [product.location.coordinates.lat, product.location.coordinates.lng], 
+    15
+  )
+  
+  // Add the OpenStreetMap tiles
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map)
+  
+  // Add a marker for the product location
+  L.marker([product.location.coordinates.lat, product.location.coordinates.lng])
+    .addTo(map)
+    .bindPopup(product.location.address)
+    .openPopup()
+}
+
+// Initialize map when component is mounted
+onMounted(() => {
+  // Small delay to ensure the DOM is fully rendered
+  setTimeout(() => {
+    initMap()
+  }, 100)
+})
+
+// Clean up map when component is unmounted
+onUnmounted(() => {
+  if (map) {
+    map.remove()
+  }
+})
 </script>
 
 <template>
@@ -128,13 +183,7 @@ const sendMessage = () => {
         <div class="location">
           <h3>Location</h3>
           <p>{{ product.location.address }}</p>
-          <div class="map-container">
-            <!-- TODO: Implement actual map integration -->
-            <div class="map-placeholder">
-              Map showing location at {{ product.location.coordinates.lat }},
-              {{ product.location.coordinates.lng }}
-            </div>
-          </div>
+          <div class="map-container" ref="mapContainer"></div>
         </div>
 
         <div class="actions">
@@ -340,19 +389,11 @@ h3 {
 }
 
 .map-container {
-  height: 200px;
-  background: #f8f8f8;
+  height: 300px;
   border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   margin-top: 1rem;
   border: 1px solid #e0e0e0;
-}
-
-.map-placeholder {
-  color: #666;
-  text-align: center;
+  z-index: 1;
 }
 
 .actions {
