@@ -18,140 +18,192 @@ const user = ref({
   description: ''
 })
 
+// File input reference
+const fileInput = ref(null)
+
+// Edit mode state
+const editMode = ref(false)
+
+// Temporary user data for editing
+const editedUser = ref({...user.value})
+
 // Description character limit
 const descriptionLimit = 500
 const remainingChars = ref(descriptionLimit)
 
 const updateRemainingChars = () => {
-  remainingChars.value = descriptionLimit - user.value.description.length
+  remainingChars.value = descriptionLimit - editedUser.value.description.length
 }
 
 // Handle description update
 const handleDescriptionChange = (event) => {
-  user.value.description = event.target.value
+  editedUser.value.description = event.target.value
   updateRemainingChars()
 }
 
-// Handle profile update
-const updateProfile = () => {
-  console.log('Updating profile with data:', user.value)
-  // In a real app, we would send this to an API
-  alert('Profile updated successfully!')
+// Toggle edit mode
+const toggleEditMode = () => {
+  if (editMode.value) {
+    // Save changes
+    user.value = {...editedUser.value}
+    console.log('Profile updated with data:', user.value)
+    // In a real app, we would send this to an API
+    alert('Profile updated successfully!')
+  } else {
+    // Enter edit mode - create a copy of user data for editing
+    editedUser.value = JSON.parse(JSON.stringify(user.value))
+  }
+  
+  editMode.value = !editMode.value
 }
 
-// Edit field functions
-const editField = (field) => {
-  console.log('Editing field:', field)
-  // This would open an edit dialog in a real implementation
+// Handle profile image change
+const triggerFileInput = () => {
+  fileInput.value.click()
+}
+
+const handleFileChange = (event) => {
+  const file = event.target.files[0]
+  if (file) {
+    // In a real app, we would upload this file to a server
+    // For now, we'll just log it
+    console.log('Selected file:', file.name)
+    alert(`Image '${file.name}' selected. In a real app, this would be uploaded.`)
+  }
 }
 </script>
 
 <template>
-    <div class="profile-page">
-      <h1>Hi {{ user.displayName }}!</h1>
-  
-      <section class="profile-section">      
-        <div class="profile-field">
-          <div class="profile-avatar">
-            <div class="avatar-placeholder"></div>
-            <button class="edit-button">
-              <span class="icon">📷</span> Edit
-            </button>
-          </div>
-          
-          <div class="profile-content">
-            <h3>Tell us about yourself</h3>
-            <textarea 
-              v-model="user.description" 
-              placeholder="Feel free to write a bit about yourself so others know who they're trading with."
-              @input="handleDescriptionChange"
-            ></textarea>
-            <p class="character-limit">
-              The description must not contain phone numbers, email addresses, or links. Maximum
-              {{ descriptionLimit }} characters.
-            </p>
-          </div>
-        </div>
-      </section>
-  
-      <section class="profile-section">
-        <h2>Schibsted Marketplaces Settings</h2>
-        
-        <div class="profile-field">
-          <div class="field-label">Email:</div>
-          <div class="field-value">{{ user.email }}</div>
-          <button class="icon-button" @click="editField('email')">
-            <span class="icon">✏️</span>
-          </button>
-        </div>
-        
-        <div class="profile-field">
-          <div class="field-label">Password:</div>
-          <div class="field-value">{{ user.password }}</div>
-          <button class="icon-button" @click="editField('password')">
-            <span class="icon">✏️</span>
-          </button>
-        </div>
-        
-        <div class="profile-field">
-          <div class="field-label">Phone number:</div>
-          <div class="field-value">{{ user.phone }}</div>
-          <button class="icon-button" @click="editField('phone')">
-            <span class="icon">✏️</span>
-          </button>
-        </div>
-        
-        <div class="profile-field section-divider">
-          <div class="field-label">About you</div>
-          <button class="icon-button" @click="editField('aboutMe')">
-            <span class="icon">✏️</span>
-          </button>
-        </div>
-        
-        <div class="profile-field">
-          <div class="field-label">Full name:</div>
-          <div class="field-value">{{ user.name }}</div>
-        </div>
-        
-        <div class="profile-field">
-          <div class="field-label">Display name:</div>
-          <div class="field-value">{{ user.displayName }}</div>
-        </div>
-        
-        <div class="profile-field">
-          <div class="field-label">Birth year:</div>
-          <div class="field-value">{{ user.birthYear }}</div>
-        </div>
-        
-        <div class="profile-field">
-          <div class="field-label">Gender:</div>
-          <div class="field-value">{{ user.gender || '-' }}</div>
-        </div>
-        
-        <div class="profile-field section-divider">
-          <div class="field-label">Address</div>
-          <button class="icon-button" @click="editField('address')">
-            <span class="icon">✏️</span>
-          </button>
-        </div>
-        
-        <div class="profile-field">
-          <div class="field-label">Street address:</div>
-          <div class="field-value">{{ user.address.street || '-' }}</div>
-        </div>
-        
-        <div class="profile-field">
-          <div class="field-label">Postal code:</div>
-          <div class="field-value">{{ user.address.postalCode || '-' }}</div>
-        </div>
-        
-        <div class="profile-field">
-          <div class="field-label">City:</div>
-          <div class="field-value">{{ user.address.city || '-' }}</div>
-        </div>
-      </section>
+  <div class="profile-page">
+    <h1>Hello {{ user.displayName }}!</h1>
+    
+    <p class="profile-intro">
+      Your profile on our marketplace is compiled from information gathered from your accounts. 
+      The more information you add here, the better we can customize the experience for you. 
+    </p>
+
+    <div class="edit-panel">
+      <button 
+        @click="toggleEditMode" 
+        class="edit-button"
+      >
+        {{ editMode ? 'Save Changes' : 'Edit Profile' }}
+      </button>
     </div>
-  </template>  
+
+    <section class="profile-section">
+      <h2>Profile Information</h2>
+      
+      <div class="profile-field">
+        <div class="profile-avatar">
+          <div class="avatar-placeholder"></div>
+          <input 
+            type="file" 
+            ref="fileInput" 
+            style="display:none" 
+            accept="image/*" 
+            @change="handleFileChange"
+          />
+          <button class="change-image-button" @click="triggerFileInput">
+            <span class="icon">📷</span> Change Image
+          </button>
+        </div>
+        
+        <div class="profile-content">
+          <h3>About Yourself</h3>
+          <textarea 
+            v-if="editMode"
+            v-model="editedUser.description" 
+            placeholder="Write a bit about yourself, so others know who they're dealing with."
+            @input="handleDescriptionChange"
+          ></textarea>
+          <p v-else class="description-text">
+            {{ user.description || 'No description added yet.' }}
+          </p>
+          <p v-if="editMode" class="character-limit">
+            The description cannot contain phone numbers, email addresses, or links. Maximum
+            {{ descriptionLimit }} characters.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="profile-section">  
+      <div class="profile-field">
+        <div class="field-label">Email:</div>
+        <div class="field-value" v-if="!editMode">{{ user.email }}</div>
+        <input v-else type="email" v-model="editedUser.email" class="field-input" />
+      </div>
+      
+      <div class="profile-field">
+        <div class="field-label">Password:</div>
+        <div class="field-value" v-if="!editMode">{{ user.password }}</div>
+        <input v-else type="password" v-model="editedUser.password" class="field-input" />
+      </div>
+      
+      <div class="profile-field">
+        <div class="field-label">Mobile Number:</div>
+        <div class="field-value" v-if="!editMode">{{ user.phone }}</div>
+        <input v-else type="tel" v-model="editedUser.phone" class="field-input" />
+      </div>
+      
+      <div class="profile-field section-divider">
+        <div class="field-label">About You</div>
+      </div>
+      
+      <div class="profile-field">
+        <div class="field-label">Name:</div>
+        <div class="field-value" v-if="!editMode">{{ user.name }}</div>
+        <input v-else type="text" v-model="editedUser.name" class="field-input" />
+      </div>
+      
+      <div class="profile-field">
+        <div class="field-label">Display Name:</div>
+        <div class="field-value" v-if="!editMode">{{ user.displayName }}</div>
+        <input v-else type="text" v-model="editedUser.displayName" class="field-input" />
+      </div>
+      
+      <div class="profile-field">
+        <div class="field-label">Birth Year:</div>
+        <div class="field-value" v-if="!editMode">{{ user.birthYear }}</div>
+        <input v-else type="text" v-model="editedUser.birthYear" class="field-input" />
+      </div>
+      
+      <div class="profile-field">
+        <div class="field-label">Gender:</div>
+        <div class="field-value" v-if="!editMode">{{ user.gender || '-' }}</div>
+        <select v-else v-model="editedUser.gender" class="field-input">
+          <option value="">Not specified</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      
+      <div class="profile-field section-divider">
+        <div class="field-label">Address</div>
+      </div>
+      
+      <div class="profile-field">
+        <div class="field-label">Street Address:</div>
+        <div class="field-value" v-if="!editMode">{{ user.address.street || '-' }}</div>
+        <input v-else type="text" v-model="editedUser.address.street" class="field-input" />
+      </div>
+      
+      <div class="profile-field">
+        <div class="field-label">Postal Code:</div>
+        <div class="field-value" v-if="!editMode">{{ user.address.postalCode || '-' }}</div>
+        <input v-else type="text" v-model="editedUser.address.postalCode" class="field-input" />
+      </div>
+      
+      <div class="profile-field">
+        <div class="field-label">City:</div>
+        <div class="field-value" v-if="!editMode">{{ user.address.city || '-' }}</div>
+        <input v-else type="text" v-model="editedUser.address.city" class="field-input" />
+      </div>
+    </section>
+  </div>
+</template>
 
 <style scoped>
 .profile-page {
@@ -168,7 +220,7 @@ h1 {
 }
 
 .profile-intro {
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   line-height: 1.5;
 }
 
@@ -179,6 +231,27 @@ h1 {
 
 .link:hover {
   text-decoration: underline;
+}
+
+.edit-panel {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.edit-button {
+  background-color: var(--button-background);
+  color: var(--button-text-color);
+  border: none;
+  border-radius: 4px;
+  padding: 0.8rem 1.5rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.edit-button:hover {
+  background-color: var(--button-hover-background);
 }
 
 .profile-section {
@@ -216,17 +289,13 @@ h2 {
   flex: 1;
 }
 
-.icon-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem;
-  opacity: 0.7;
-  transition: opacity 0.2s;
-}
-
-.icon-button:hover {
-  opacity: 1;
+.field-input {
+  flex: 1;
+  padding: 0.6rem;
+  border-radius: 4px;
+  border: 1px solid rgba(123, 164, 102, 0.3);
+  background-color: var(--background-color);
+  color: var(--text-color);
 }
 
 .section-divider {
@@ -255,7 +324,7 @@ h2 {
   color: #999;
 }
 
-.edit-button {
+.change-image-button {
   background-color: var(--button-background);
   color: var(--button-text-color);
   border: none;
@@ -268,7 +337,7 @@ h2 {
   gap: 0.5rem;
 }
 
-.edit-button:hover {
+.change-image-button:hover {
   background-color: var(--button-hover-background);
 }
 
@@ -294,6 +363,14 @@ textarea {
   resize: vertical;
 }
 
+.description-text {
+  padding: 0.8rem;
+  background-color: var(--background-color);
+  border-radius: 4px;
+  min-height: 60px;
+  color: var(--text-color);
+}
+
 .character-limit {
   font-size: 0.8rem;
   color: #777;
@@ -313,6 +390,10 @@ textarea {
   .profile-avatar {
     margin-right: 0;
     margin-bottom: 1.5rem;
+  }
+  
+  .field-input {
+    width: 100%;
   }
 }
 </style>
