@@ -1,4 +1,4 @@
-package ntnu.idi.bidata.IDATT2105.repos;
+package ntnu.idi.bidata.IDATT2105.repos.user;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -52,28 +52,27 @@ public interface UserRepository extends JpaRepository<User, Long> {
   boolean existsByUsername(String username);
 
   /**
-   * Finds a User by their ID.
+   * Finds all Users with a particular account status.
    * 
-   * @param id the ID of the user
-   * @return an Optional containing the User if found, or empty if not found
+   * @param status the account status to filter by
+   * @return a list of Users with the specified status
    */
   List<User> findByStatus(AccountStatus status);
 
   /**
-   * Finds a User by their ID and status.
+   * Finds Users with a specific status and returns them as a paginated result ordered by creation date (descending).
    * 
-   * @param id     the ID of the user
-   * @param status the status of the user
-   * @return an Optional containing the User if found, or empty if not found
+   * @param status the account status to filter by
+   * @param pageable the pagination information
+   * @return a Page of Users with the specified status
    */
   Page<User> findByStatusOrderByCreatedAtDesc(AccountStatus status, Pageable pageable);
 
   /**
-   * Finds a User by their ID and status.
+   * Finds Users who haven't logged in since a specific date.
    * 
-   * @param id     the ID of the user
-   * @param status the status of the user
-   * @return an Optional containing the User if found, or empty if not found
+   * @param date the date threshold for last login
+   * @return a list of Users who haven't logged in since the specified date
    */
   List<User> findByLastLoginAtBefore(LocalDateTime date);
 }
