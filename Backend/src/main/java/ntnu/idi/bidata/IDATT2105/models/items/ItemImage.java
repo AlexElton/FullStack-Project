@@ -15,6 +15,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+/**
+ * JPA entity representing an image associated with an item listing.
+ */
 @Entity
 @Table(name = "item_images", indexes = {
   @Index(name = "idx_item_id", columnList = "item_id")
@@ -43,5 +46,91 @@ public class ItemImage {
   @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
-  // TODO add getters and setters as needed
+  // Default constructor
+  public ItemImage() {
+  }
+
+  // Constructor with required fields
+  public ItemImage(Item item, String imageUrl) {
+    this.item = item;
+    this.imageUrl = imageUrl;
+  }
+
+  // Constructor with all fields
+  public ItemImage(Item item, String imageUrl, Boolean isPrimary, Integer displayOrder) {
+    this.item = item;
+    this.imageUrl = imageUrl;
+    this.isPrimary = isPrimary;
+    this.displayOrder = displayOrder;
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public Item getItem() {
+    return item;
+  }
+
+  public void setItem(Item item) {
+    this.item = item;
+  }
+
+  public String getImageUrl() {
+    return imageUrl;
+  }
+
+  public void setImageUrl(String imageUrl) {
+    this.imageUrl = imageUrl;
+  }
+
+  public Boolean getIsPrimary() {
+    return isPrimary;
+  }
+
+  public void setIsPrimary(Boolean isPrimary) {
+    this.isPrimary = isPrimary;
+  }
+
+  public Integer getDisplayOrder() {
+    return displayOrder;
+  }
+
+  public void setDisplayOrder(Integer displayOrder) {
+    this.displayOrder = displayOrder;
+  }
+
+  public LocalDateTime getCreatedAt() {
+    return createdAt;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    
+    ItemImage image = (ItemImage) o;
+    return id.equals(image.id);
+  }
+
+  @Override
+  public int hashCode() {
+    return id.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return "ItemImage{" +
+           "id=" + id +
+           ", item=" + item.getItemId() +
+           ", imageUrl='" + imageUrl + '\'' +
+           ", isPrimary=" + isPrimary +
+           ", displayOrder=" + displayOrder +
+           ", createdAt=" + createdAt +
+           '}';
+  }
 }
