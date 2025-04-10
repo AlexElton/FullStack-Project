@@ -9,9 +9,13 @@ const searchStore = useSearchStore()
 
 const searchQuery = ref('')
 const selectedCategory = ref('All')
+const selectedSort = ref('newest')
+const products = ref([])
+const loading = ref(false)
+const error = ref(null)
 
 // Sample data - will be replaced with API calls
-const products = [
+const sampleProducts = [
   {
     id: 1,
     title: 'Premium Headphones',
@@ -86,13 +90,37 @@ const products = [
   }
 ]
 
-// State for filters and search
-const selectedSort = ref('newest')
+// Categories array remains the same
+const categories = ['All', 'Electronics', 'Fashion', 'Home & Garden', 'Toys & Games', 
+  'Vehicles', 'Books', 'Music & Movies', 'Sports & Outdoors', 'Health & Beauty',
+  'Groceries', 'Office Supplies', 'Pet Supplies', 'Jewelry & Accessories',
+  'Tools & Industrial', 'Art & Collectibles']
+
+// Fetch products from API
+const fetchProducts = async () => {
+  loading.value = true
+  error.value = null
+  try {
+    const response = await fetch('http://localhost:8080/api/items/active')
+    if (!response.ok) {
+      throw new Error('Failed to fetch products')
+    }
+    const data = await response.json()
+    // The API returns a Page object, so we need to access the content
+    products.value = data.content
+  } catch (err) {
+    error.value = err.message
+    console.error('Error fetching products:', err)
+  } finally {
+    loading.value = false
+  }
+}
 
 // Computed property to filter and sort products
 const filteredProducts = computed(() => {
-  // Step 1: Apply search filter if there's a search query
-  let result = [...products]
+  if (!products.value) return []
+  
+  let result = [...products.value]
   
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.toLowerCase().trim()
@@ -103,12 +131,10 @@ const filteredProducts = computed(() => {
     )
   }
   
-  // Step 2: Filter by category
   if (selectedCategory.value !== 'All') {
     result = result.filter(product => product.category === selectedCategory.value)
   }
   
-  // Step 3: Sort based on selected option
   switch (selectedSort.value) {
     case 'price-asc':
       return result.sort((a, b) => a.price - b.price)
@@ -116,40 +142,88 @@ const filteredProducts = computed(() => {
       return result.sort((a, b) => b.price - a.price)
     case 'newest':
     default:
-      // Assuming id represents the order of addition (newer items have higher ids)
       return result.sort((a, b) => b.id - a.id)
   }
 })
 
-const categories = ['All', 'Electronics', 'Fashion', 'Home & Garden', 'Toys & Games', 
-  'Vehicles', 'Books', 'Music & Movies', 'Sports & Outdoors', 'Health & Beauty',
-  'Groceries', 'Office Supplies', 'Pet Supplies', 'Jewelry & Accessories',
-  'Tools & Industrial', 'Art & Collectibles']
+// Update the search functionality to use the search endpoint
+const handleSearch = async () => {
+  if (!searchQuery.value.trim()) {
+    await fetchProducts()
+    return
+  }
+  
+  loading.value = true
+  error.value = null
+  try {
+    const response = await fetch(`http://localhost:8080/api/items/search?query=${encodeURIComponent(searchQuery.value)}`)
+    if (!response.ok) {
+      throw new Error('Failed to search products')
+    }
+    const data = await response.json()
+    products.value = data.content
+  } catch (err) {
+    error.value = err.message
+    console.error('Error searching products:', err)
+  } finally {
+    loading.value = false
+  }
+}
 
-// Initialize search and category from store or route
-onMounted(() => {
+// Update category filtering to use the category endpoint
+const handleCategoryChange = async (event) => {
+  selectedCategory.value = event.target.value
+  
+  if (selectedCategory.value === 'All') {
+    await fetchProducts()
+    return
+  }
+  
+  loading.value = true
+  error.value = null
+  try {
+    const response = await fetch(`http://localhost:8080/api/items/category/${selectedCategory.value}`)
+    if (!response.ok) {
+      throw new Error('Failed to fetch category products')
+    }
+    const data = await response.json()
+    products.value = data.content
+  } catch (err) {
+    error.value = err.message
+    console.error('Error fetching category products:', err)
+  } finally {
+    loading.value = false
+  }
+}
+
+// Handle sort change
+const handleSortChange = (event) => {
+  selectedSort.value = event.target.value
+}
+
+// Handle Enter key press in search input
+const handleSearchKeyup = (event) => {
+  if (event.key === 'Enter') {
+    handleSearch()
+  }
+}
+
+// Initialize data on component mount
+onMounted(async () => {
   console.log('ProductsView mounted')
-  console.log('Route query:', route.query)
-  console.log('Store state:', {
-    lastSearch: searchStore.lastSearch,
-    lastCategory: searchStore.lastCategory
-  })
-
-  // Handle category from route or store
+  
   if (route.query.category) {
-    console.log('Setting category from route:', route.query.category)
     selectedCategory.value = route.query.category
     searchStore.setCategory(route.query.category)
   } else if (searchStore.lastCategory) {
-    console.log('Setting category from store:', searchStore.lastCategory)
     selectedCategory.value = searchStore.lastCategory
   }
   
-  // Handle search from store
   if (searchStore.lastSearch) {
-    console.log('Setting search from store:', searchStore.lastSearch)
     searchQuery.value = searchStore.lastSearch
   }
+  
+  await fetchProducts()
 })
 
 // Watch for search changes
@@ -167,37 +241,6 @@ watch(selectedCategory, (newValue) => {
     searchStore.setCategory('')
   }
 }, { immediate: true })
-
-
-// Placeholder for API integration
-const fetchProducts = () => {
-  // TODO: Implement API call to fetch products
-  console.log('Fetching products from API...')
-}
-
-// Handle category change
-const handleCategoryChange = (event) => {
-  selectedCategory.value = event.target.value
-}
-
-// Handle sort change
-const handleSortChange = (event) => {
-  selectedSort.value = event.target.value
-}
-
-// Handle search
-const handleSearch = () => {
-  // The search is already reactive with the v-model binding
-  // But this function can be used for additional actions like tracking search history
-  console.log('Searching for:', searchQuery.value)
-}
-
-// Handle Enter key press in search input
-const handleSearchKeyup = (event) => {
-  if (event.key === 'Enter') {
-    handleSearch()
-  }
-}
 </script>
 
 <template>
@@ -228,7 +271,16 @@ const handleSearchKeyup = (event) => {
       </div>
     </div>
 
-    <div v-if="filteredProducts.length === 0" class="no-results">
+    <div v-if="loading" class="loading-state">
+      <p>Loading products...</p>
+    </div>
+
+    <div v-else-if="error" class="error-state">
+      <p>{{ error }}</p>
+      <button @click="fetchProducts">Try Again</button>
+    </div>
+
+    <div v-else-if="filteredProducts.length === 0" class="no-results">
       <p>No products found. Try a different search or filter.</p>
     </div>
 
@@ -238,8 +290,11 @@ const handleSearchKeyup = (event) => {
         :key="product.id"
         :title="product.title"
         :price="product.price"
-        :image="product.image"
-        :description="product.description"
+        :image="product.images[0]?.imageUrl || 'https://placehold.co/600x400'"
+        :description="product.briefDescription"
+        :category="product.category.name"
+        :seller="product.seller.username"
+        :status="product.status"
       />
     </div>
 
@@ -364,6 +419,30 @@ const handleSearchKeyup = (event) => {
 }
 
 .sell-button:hover {
+  background-color: var(--button-hover-background);
+}
+
+.loading-state,
+.error-state {
+  text-align: center;
+  padding: 2rem;
+  margin: 2rem 0;
+  background-color: var(--card-background);
+  border-radius: 8px;
+}
+
+.error-state button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--button-background);
+  color: var(--button-text-color);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.error-state button:hover {
   background-color: var(--button-hover-background);
 }
 </style>
