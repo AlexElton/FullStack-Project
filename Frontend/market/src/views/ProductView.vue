@@ -374,7 +374,7 @@ h3 {
 }
 
 .contact-seller:hover {
-  background-color: #e88a1a;
+  background-color: var(--button-background);
 }
 
 /* Modal Styles */
