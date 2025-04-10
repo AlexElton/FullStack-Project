@@ -1,113 +1,26 @@
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { useSearchStore } from '../stores/searchStore'
+import { useItemStore } from '@/stores/itemStore'
+import { useCategoryStore } from '@/stores/categoryStore'
 import ProductCard from '@/components/ProductCard.vue'
 
 const route = useRoute()
-const searchStore = useSearchStore()
+const itemStore = useItemStore()
+const categoryStore = useCategoryStore()
 
 const searchQuery = ref('')
 const selectedCategory = ref('All')
 const selectedSort = ref('newest')
-const products = ref([])
 const loading = ref(false)
 const error = ref(null)
-
-// Sample data - will be replaced with API calls
-const sampleProducts = [
-  {
-    id: 1,
-    title: 'Premium Headphones',
-    price: 199.99,
-    image: 'https://placehold.co/600x400',
-    description: 'High-quality wireless headphones with noise cancellation',
-    category: 'Electronics',
-    seller: 'TechStore',
-  },
-  {
-    id: 2,
-    title: 'Smart Watch',
-    price: 299.99,
-    image: 'https://placehold.co/600x400',
-    description: 'Feature-rich smartwatch with health tracking',
-    category: 'Electronics',
-    seller: 'TechStore',
-  },
-  {
-    id: 3,
-    title: 'Wireless Speaker',
-    price: 149.99,
-    image: 'https://placehold.co/600x400',
-    description: 'Portable Bluetooth speaker with premium sound',
-    category: 'Electronics',
-    seller: 'TechStore',
-  },
-  {
-    id: 4,
-    title: 'Goblin Slayer: Volume 1',
-    price: 19.99,
-    image: 'https://placehold.co/600x400',
-    description: 'First volume of the popular manga series "Goblin Slayer"',
-    category: 'Books',
-    seller: 'BookStore',
-  },
-  {
-    id: 5,
-    title: 'Goblin Slayer: Volume 2',
-    price: 19.99,
-    image: 'https://placehold.co/600x400',
-    description: 'Second volume of the popular manga series "Goblin Slayer"',
-    category: 'Books',
-    seller: 'BookStore',
-  },
-  {
-    id: 6,
-    title: 'Goblin Slayer: Volume 3',
-    price: 19.99,
-    image: 'https://placehold.co/600x400',
-    description: 'Third volume of the popular manga series "Goblin Slayer"',
-    category: 'Books',
-    seller: 'BookStore',
-  },
-  {
-    id: 7,
-    title: 'Goblin Slayer: Volume 4',
-    price: 19.99,
-    image: 'https://placehold.co/600x400',
-    description: 'Fourth volume of the popular manga series "Goblin Slayer"',
-    category: 'Books',
-    seller: 'BookStore',
-  },
-  {
-    id: 8,
-    title: 'Goblin Slayer: Volume 5',
-    price: 19.99,
-    image: 'https://placehold.co/600x400',
-    description: 'Fifth volume of the popular manga series "Goblin Slayer"',
-    category: 'Books',
-    seller: 'BookStore',
-  }
-]
-
-// Categories array remains the same
-const categories = ['All', 'Electronics', 'Fashion', 'Home & Garden', 'Toys & Games', 
-  'Vehicles', 'Books', 'Music & Movies', 'Sports & Outdoors', 'Health & Beauty',
-  'Groceries', 'Office Supplies', 'Pet Supplies', 'Jewelry & Accessories',
-  'Tools & Industrial', 'Art & Collectibles']
 
 // Fetch products from API
 const fetchProducts = async () => {
   loading.value = true
   error.value = null
   try {
-    const response = await fetch('http://localhost:8080/api/items/active')
-    if (!response.ok) {
-      throw new Error('Failed to fetch products')
-    }
-    const data = await response.json()
-    // The API returns a Page object, so we need to access the content
-    products.value = data.content
+    await itemStore.getActiveItems()
   } catch (err) {
     error.value = err.message
     console.error('Error fetching products:', err)
@@ -116,23 +29,32 @@ const fetchProducts = async () => {
   }
 }
 
+// Fetch categories from API
+const fetchCategories = async () => {
+  try {
+    await categoryStore.getAllCategories()
+  } catch (err) {
+    console.error('Error fetching categories:', err)
+  }
+}
+
 // Computed property to filter and sort products
 const filteredProducts = computed(() => {
-  if (!products.value) return []
+  if (!itemStore.items) return []
   
-  let result = [...products.value]
+  let result = [...itemStore.items]
   
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.toLowerCase().trim()
     result = result.filter(product => 
       product.title.toLowerCase().includes(query) || 
-      product.description.toLowerCase().includes(query) ||
-      product.category.toLowerCase().includes(query)
+      product.fullDescription.toLowerCase().includes(query) ||
+      product.category.name.toLowerCase().includes(query)
     )
   }
   
   if (selectedCategory.value !== 'All') {
-    result = result.filter(product => product.category === selectedCategory.value)
+    result = result.filter(product => product.category.name === selectedCategory.value)
   }
   
   switch (selectedSort.value) {
@@ -142,7 +64,7 @@ const filteredProducts = computed(() => {
       return result.sort((a, b) => b.price - a.price)
     case 'newest':
     default:
-      return result.sort((a, b) => b.id - a.id)
+      return result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
   }
 })
 
@@ -156,12 +78,7 @@ const handleSearch = async () => {
   loading.value = true
   error.value = null
   try {
-    const response = await fetch(`http://localhost:8080/api/items/search?query=${encodeURIComponent(searchQuery.value)}`)
-    if (!response.ok) {
-      throw new Error('Failed to search products')
-    }
-    const data = await response.json()
-    products.value = data.content
+    await itemStore.searchItems(searchQuery.value)
   } catch (err) {
     error.value = err.message
     console.error('Error searching products:', err)
@@ -182,12 +99,10 @@ const handleCategoryChange = async (event) => {
   loading.value = true
   error.value = null
   try {
-    const response = await fetch(`http://localhost:8080/api/items/category/${selectedCategory.value}`)
-    if (!response.ok) {
-      throw new Error('Failed to fetch category products')
+    const category = categoryStore.categories.find(c => c.name === selectedCategory.value)
+    if (category) {
+      await itemStore.getItemsByCategory(category.categoryId)
     }
-    const data = await response.json()
-    products.value = data.content
   } catch (err) {
     error.value = err.message
     console.error('Error fetching category products:', err)
@@ -201,248 +116,144 @@ const handleSortChange = (event) => {
   selectedSort.value = event.target.value
 }
 
-// Handle Enter key press in search input
-const handleSearchKeyup = (event) => {
-  if (event.key === 'Enter') {
-    handleSearch()
+// Watch for route changes to handle search parameters
+watch(() => route.query, async (newQuery) => {
+  if (newQuery.search) {
+    searchQuery.value = newQuery.search
+    await handleSearch()
   }
-}
+}, { immediate: true })
 
-// Initialize data on component mount
+// Fetch products and categories on mount
 onMounted(async () => {
-  console.log('ProductsView mounted')
-  
-  if (route.query.category) {
-    selectedCategory.value = route.query.category
-    searchStore.setCategory(route.query.category)
-  } else if (searchStore.lastCategory) {
-    selectedCategory.value = searchStore.lastCategory
-  }
-  
-  if (searchStore.lastSearch) {
-    searchQuery.value = searchStore.lastSearch
-  }
-  
-  await fetchProducts()
+  await Promise.all([fetchProducts(), fetchCategories()])
 })
-
-// Watch for search changes
-watch(searchQuery, (newValue) => {
-  console.log('Search query changed:', newValue)
-  searchStore.setSearch(newValue)
-}, { immediate: true })
-
-// Watch for category changes
-watch(selectedCategory, (newValue) => {
-  console.log('Category changed:', newValue)
-  if (newValue !== 'All') {
-    searchStore.setCategory(newValue)
-  } else {
-    searchStore.setCategory('')
-  }
-}, { immediate: true })
 </script>
 
 <template>
   <div class="products-page">
     <div class="filters">
       <div class="search-bar">
-        <input 
-          type="text" 
-          placeholder="Search products..." 
+        <input
+          type="text"
           v-model="searchQuery"
-          @keyup="handleSearchKeyup"
+          placeholder="Search products..."
+          @keyup.enter="handleSearch"
         />
         <button @click="handleSearch">Search</button>
       </div>
 
-      <div class="filter-options">
-        <select @change="handleCategoryChange" v-model="selectedCategory">
-          <option v-for="category in categories" :key="category" :value="category">
-            {{ category }}
+      <div class="filter-controls">
+        <select v-model="selectedCategory" @change="handleCategoryChange">
+          <option value="All">All Categories</option>
+          <option v-for="category in categoryStore.categories" 
+                  :key="category.categoryId" 
+                  :value="category.name">
+            {{ category.name }}
           </option>
         </select>
 
-        <select @change="handleSortChange" v-model="selectedSort">
+        <select v-model="selectedSort" @change="handleSortChange">
+          <option value="newest">Newest First</option>
           <option value="price-asc">Price: Low to High</option>
           <option value="price-desc">Price: High to Low</option>
-          <option value="newest">Newest First</option>
         </select>
       </div>
     </div>
 
-    <div v-if="loading" class="loading-state">
-      <p>Loading products...</p>
+    <div v-if="error" class="error-message">
+      {{ error }}
     </div>
 
-    <div v-else-if="error" class="error-state">
-      <p>{{ error }}</p>
-      <button @click="fetchProducts">Try Again</button>
+    <div v-if="loading" class="loading-state">
+      Loading products...
     </div>
 
     <div v-else-if="filteredProducts.length === 0" class="no-results">
-      <p>No products found. Try a different search or filter.</p>
+      No products found.
     </div>
 
     <div v-else class="products-grid">
       <ProductCard
         v-for="product in filteredProducts"
-        :key="product.id"
-        :title="product.title"
-        :price="product.price"
-        :image="product.images[0]?.imageUrl || 'https://placehold.co/600x400'"
-        :description="product.briefDescription"
-        :category="product.category.name"
-        :seller="product.seller.username"
-        :status="product.status"
+        :key="product.itemId"
+        :product="product"
       />
-    </div>
-
-    <div class="sell-section">
-      <h2>Want to sell something?</h2>
-      <p>Create an account and start selling your items today!</p>
-      <router-link to="/sell" class="sell-button">Start Selling</router-link>
     </div>
   </div>
 </template>
 
 <style scoped>
 .products-page {
-  max-width: 100%;
+  padding: 2rem;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 1rem;
 }
 
 .filters {
+  margin-bottom: 2rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  width: 50%;
-  margin: 2rem auto;
 }
 
 .search-bar {
   display: flex;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .search-bar input {
   flex: 1;
-  padding: 0.8rem;
-  box-shadow: 0 2px 4px rgba(123, 164, 102, 0.1);
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
-  background-color: var(--background-color);
-  color: var(--text-color);
-}
-
-.search-bar input::placeholder {
-  color: var(--accent-color);
 }
 
 .search-bar button {
-  padding: 0.8rem 1.5rem;
-  background-color: var(--button-background);
-  color: var(--button-text-color);
-  box-shadow: 0 2px 4px rgba(123, 164, 102, 0.1);
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.search-bar button:hover {
-  background-color: var(--button-hover-background);
-}
-
-.filter-options {
-  display: flex;
-  gap: 1rem;
-}
-
-.filter-options select {
-  padding: 0.8rem;
-  box-shadow: 0 2px 4px rgba(123, 164, 102, 0.1);
-  border-radius: 4px;
-  background-color: var(--background-color);
-  color: var(--text-color);
-  cursor: pointer;
-}
-
-.products-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 2rem;
-  margin-bottom: 3rem;
-}
-
-.no-results {
-  text-align: center;
-  padding: 3rem;
-  background-color: var(--card-background);
-  border-radius: 8px;
-  margin-bottom: 3rem;
-}
-
-.no-results p {
-  color: var(--text-color);
-  font-size: 1.2rem;
-}
-
-.sell-section {
-  text-align: center;
-  padding: 3rem;
-  background-color: var(--card-background);
-  border-radius: 8px;
-  margin-top: 2rem;
-}
-
-.sell-section h2 {
-  color: var(--text-color);
-  margin-bottom: 1rem;
-  font-size: 1.8rem;
-}
-
-.sell-section p {
-  color: var(--text-color);
-  margin-bottom: 1.5rem;
-}
-
-.sell-button {
-  padding: 1rem 2rem;
-  background-color: var(--button-background);
-  color: var(--button-text-color);
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.2s;
-}
-
-.sell-button:hover {
-  background-color: var(--button-hover-background);
-}
-
-.loading-state,
-.error-state {
-  text-align: center;
-  padding: 2rem;
-  margin: 2rem 0;
-  background-color: var(--card-background);
-  border-radius: 8px;
-}
-
-.error-state button {
-  margin-top: 1rem;
   padding: 0.5rem 1rem;
   background-color: var(--button-background);
   color: var(--button-text-color);
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.2s;
 }
 
-.error-state button:hover {
-  background-color: var(--button-hover-background);
+.filter-controls {
+  display: flex;
+  gap: 1rem;
+}
+
+.filter-controls select {
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.error-message {
+  background-color: var(--error-background);
+  color: var(--error-text);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+}
+
+.no-results {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
 }
 </style>

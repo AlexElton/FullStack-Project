@@ -17,7 +17,7 @@ const fullDescription = ref('')
 const price = ref('')
 const quantity = ref(1)
 const condition = ref('NEW')
-const categoryId = ref(1) // Hardcoded category ID
+const categoryId = ref(null) // Changed from hardcoded value
 const allowOffers = ref(true)
 const acceptVipps = ref(true)
 const locationAddress = ref('')
@@ -29,11 +29,26 @@ const loading = ref(false)
 // Available options
 const conditions = ['NEW', 'LIKE_NEW', 'GOOD', 'FAIR', 'POOR']
 
-// Check authentication on mount
+// Check authentication and fetch categories on mount
 onMounted(async () => {
   if (!authStore.isAuthenticated) {
     router.push('/login?redirect=/sell')
     return
+  }
+  
+  try {
+    console.log('Fetching categories...')
+    await categoryStore.getAllCategories()
+    console.log('Categories fetched:', categoryStore.categories)
+    if (categoryStore.categories.length > 0) {
+      categoryId.value = categoryStore.categories[0].categoryId
+      console.log('Selected first category:', categoryId.value)
+    } else {
+      console.log('No categories available')
+    }
+  } catch (err) {
+    console.error('Error fetching categories:', err)
+    error.value = 'Failed to load categories. Please try again later.'
   }
 })
 
@@ -80,7 +95,7 @@ const resetForm = () => {
   price.value = ''
   quantity.value = 1
   condition.value = 'NEW'
-  categoryId.value = 1
+  categoryId.value = null
   allowOffers.value = true
   acceptVipps.value = true
   locationAddress.value = ''
@@ -159,12 +174,17 @@ const removeTag = (index) => {
 
         <div class="form-group">
           <label for="category">Category</label>
-          <input
+          <select
             id="category"
-            type="text"
-            value="Electronics"
-            disabled
-          />
+            v-model="categoryId"
+            required
+          >
+            <option v-for="category in categoryStore.categories" 
+                    :key="category.categoryId" 
+                    :value="category.categoryId">
+              {{ category.name }}
+            </option>
+          </select>
         </div>
 
         <div class="form-group">
@@ -493,5 +513,16 @@ const removeTag = (index) => {
   text-align: center;
   padding: 1rem;
   color: var(--text-secondary);
+}
+
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 1rem;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  cursor: pointer;
 }
 </style>
