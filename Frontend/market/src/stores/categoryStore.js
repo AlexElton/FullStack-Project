@@ -17,7 +17,7 @@ export const useCategoryStore = defineStore('categories', {
   }),
   
   getters: {
-    getCategoryById: (state) => (id) => state.categories.find(category => category.id === id)
+    getCategoryById: (state) => (id) => state.categories.find(category => category.categoryId === id)
   },
   
   actions: {

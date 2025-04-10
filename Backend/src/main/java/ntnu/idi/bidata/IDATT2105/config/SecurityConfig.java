@@ -50,6 +50,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/items/active").permitAll()
                 .requestMatchers("/api/items/search").permitAll()
@@ -58,6 +59,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/categories/top-level").permitAll()
                 .requestMatchers("/api/categories/search").permitAll()
                 .anyRequest().authenticated()
+            )
+            .headers(headers -> headers
+                .frameOptions(frameOptions -> frameOptions.disable())
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

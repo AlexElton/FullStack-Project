@@ -1,5 +1,8 @@
 package ntnu.idi.bidata.IDATT2105.services.auth;
 
+import java.time.LocalDateTime;
+import java.util.logging.Logger;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.extern.slf4j.Slf4j;
 import ntnu.idi.bidata.IDATT2105.dtos.AuthRequestDTO;
 import ntnu.idi.bidata.IDATT2105.dtos.AuthResponseDTO;
 import ntnu.idi.bidata.IDATT2105.dtos.RegisterRequestDTO;
@@ -23,13 +27,11 @@ import ntnu.idi.bidata.IDATT2105.repos.user.UserRepository;
 import ntnu.idi.bidata.IDATT2105.repos.user.UserSettingsRepository;
 import ntnu.idi.bidata.IDATT2105.services.security.JwtService;
 
-import java.time.LocalDateTime;
-import java.util.logging.Logger;
-
 /**
  * Service for handling user authentication and registration.
  */
 @Service
+@Slf4j
 public class AuthService {
     private static final Logger logger = Logger.getLogger(AuthService.class.getName());
     
@@ -100,6 +102,8 @@ public class AuthService {
             user.setLastLoginAt(LocalDateTime.now());
             
             User savedUser = userRepository.save(user);
+            userRepository.flush(); 
+            log.info("User updated: " + savedUser);
             
             // Create default user settings
             UserSettings settings = new UserSettings(savedUser);
