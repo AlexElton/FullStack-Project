@@ -3,8 +3,11 @@ package ntnu.idi.bidata.IDATT2105.repos.item;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import ntnu.idi.bidata.IDATT2105.models.items.Category;
@@ -86,10 +89,14 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
    * @param categoryId the ID of the category
    * @return a list of categories representing the path from the root to the specified category
    */
-  @Query("WITH RECURSIVE category_path AS (" +
-         "  SELECT c FROM Category c WHERE c.categoryId = ?1 " +
-         "  UNION ALL " +
-         "  SELECT c FROM Category c JOIN category_path cp ON c.categoryId = cp.parentCategory.categoryId" +
-         ") SELECT cp FROM category_path")
-  List<Category> findCategoryPathById(Long categoryId);
+  @Query(value = """
+          WITH RECURSIVE category_path AS (
+              SELECT c.* FROM categories c WHERE c.category_id = :categoryId
+              UNION ALL
+              SELECT c.* FROM categories c
+              JOIN category_path cp ON c.category_id = cp.parent_category_id
+          )
+          SELECT * FROM category_path
+          """, nativeQuery = true)
+  List<Category> findCategoryPathById(@Param("categoryId") Long categoryId);
 }

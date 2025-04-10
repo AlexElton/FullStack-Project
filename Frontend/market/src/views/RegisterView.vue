@@ -1,17 +1,34 @@
 <script setup>
 import { ref } from 'vue'
+import { useAuthStore } from '../stores/authStore'
+import { useRouter } from 'vue-router'
 
-const name = ref('')
+const username = ref('')
 const email = ref('')
+const firstName = ref('')
+const lastName = ref('')
 const password = ref('')
 const confirmPassword = ref('')
+const router = useRouter()
 
-const register = () => {
-    if (password.value !== confirmPassword.value) {
+const register = async () => {
+  if (password.value !== confirmPassword.value) {
     alert("Passwords do not match!")
     return
   }
-  alert('Registering:', name.value, email.value, password.value)
+  
+  try {
+    await useAuthStore().register({
+      username: username.value,
+      email: email.value,
+      firstName: firstName.value,
+      lastName: lastName.value,
+      password: password.value
+    })
+    router.push('/login')
+  } catch (error) {
+    alert(error.response?.data?.message || 'Registration failed')
+  }
 }
 </script>
 
@@ -19,14 +36,12 @@ const register = () => {
   <div class="auth-container">
     <h2>Register</h2>
     <form @submit.prevent="register">
-      <input v-model="name" placeholder="Name "type="text" required />
-
+      <input v-model="username" placeholder="Username" type="text" required />
       <input v-model="email" placeholder="Email" type="email" required />
-
+      <input v-model="firstName" placeholder="First Name" type="text" required />
+      <input v-model="lastName" placeholder="Last Name" type="text" required />
       <input v-model="password" placeholder="Password" type="password" required />
-
       <input v-model="confirmPassword" placeholder="Confirm Password" type="password" required />
-
       <button type="submit">Register</button>
     </form>
     <p>Already have an account? <router-link to="/login">Login</router-link></p>

@@ -1,11 +1,24 @@
 <script setup>
 import { ref } from 'vue'
+import { useAuthStore } from '../stores/authStore'
+import { useRouter } from 'vue-router'
 
-const email = ref('')
+const username = ref('')
 const password = ref('')
+const router = useRouter()
 
 const login = () => {
-  console.log('Logging in with:', email.value, password.value)
+  useAuthStore().login({
+    username: username.value,
+    password: password.value
+  })
+    .then(() => {
+      router.push('/')
+      alert('Login successful')
+    })
+    .catch((error) => {
+      alert(error.response?.data?.message || 'Login failed')
+    })
 }
 </script>
 
@@ -13,15 +26,15 @@ const login = () => {
   <div class="auth-container">
     <h2>Login</h2>
     <form @submit.prevent="login">
-      <input v-model="email" placeholder="Email" type="email" required />
-
+      <!-- Bind to username instead of email -->
+      <input v-model="username" placeholder="Username" type="text" required />
       <input v-model="password" placeholder="Password" type="password" required />
-
       <button type="submit">Login</button>
     </form>
     <p>Don't have an account? <router-link to="/register">Register</router-link></p>
   </div>
 </template>
+
 
 <style scoped>
 .auth-container {
