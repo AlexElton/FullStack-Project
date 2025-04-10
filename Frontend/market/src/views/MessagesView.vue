@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { messages } from '@/composables/messageStore'
+import StripeCheckout from '@/components/StripeCheckout.vue'
 
 // Compute the number of unread messages
 const unreadCount = computed(() => {
@@ -104,7 +105,7 @@ const handleFileChange = (event) => {
               <span>{{ currentMessage.sender.reviews }} reviews</span>
             </div>
           </div>
-          <button class="status-button">Show profile</button>
+          <StripeCheckout />
         </div>
       </div>
       
@@ -336,10 +337,6 @@ const handleFileChange = (event) => {
 
 .rating {
   font-size: 0.9rem;
-}
-
-.status-button {
-  padding: 0.5rem 1rem;
 }
 
 .message-content {

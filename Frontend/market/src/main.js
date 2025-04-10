@@ -21,6 +21,8 @@ import {
   faTools, 
   faPalette 
 } from '@fortawesome/free-solid-svg-icons'
+import { loadStripe } from '@stripe/stripe-js'
+import VueStripe from '@vue-stripe/vue-stripe'
 
 import App from './App.vue'
 import router from './router'
@@ -44,10 +46,14 @@ library.add(
   faPalette
 )
 
+// Initialize Stripe
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY)
+
 const app = createApp(App)
 
 app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(createPinia())
 app.use(router)
+app.use(VueStripe, { stripePromise })
 
 app.mount('#app')
