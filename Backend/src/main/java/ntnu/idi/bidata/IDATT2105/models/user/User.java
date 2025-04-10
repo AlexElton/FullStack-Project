@@ -10,6 +10,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -49,6 +51,7 @@ public class User implements UserDetails {
   private String email;
 
   @Column(nullable = false, name = "password_hash")
+  @JsonIgnore
   private String passwordHash;
 
   @Column(name = "first_name")

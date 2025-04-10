@@ -5,13 +5,13 @@ VALUES
 ('user1', 'user1@example.com', '$2a$10$mDQtfH0X6juF3MQTPnvIMO7c0jYKL5PiUQJw3g.LYBFvICmZ2zDUu', 'John', 'Doe', '87654321', 'USER', 'ACTIVE', 'Regular user', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- Insert categories
-INSERT INTO categories (name, description, parent_category_id, created_at)
+INSERT INTO categories (name, description, parent_category_id, display_order, icon_url, is_active, created_at, updated_at)
 VALUES 
-('Electronics', 'Electronic devices and accessories', NULL, CURRENT_TIMESTAMP),
-('Books', 'Books and literature', NULL, CURRENT_TIMESTAMP),
-('Clothing', 'Clothing and fashion', NULL, CURRENT_TIMESTAMP),
-('Smartphones', 'Mobile phones and accessories', 1, CURRENT_TIMESTAMP),
-('Laptops', 'Laptop computers', 1, CURRENT_TIMESTAMP);
+('Electronics', 'Electronic devices and accessories', NULL, 1, NULL, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Books', 'Books and literature', NULL, 2, NULL, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Clothing', 'Clothing and fashion', NULL, 3, NULL, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Smartphones', 'Mobile phones and accessories', 1, 1, NULL, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Laptops', 'Laptop computers', 1, 2, NULL, TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- Insert items
 INSERT INTO items (seller_id, category_id, title, brief_description, full_description, price, currency, condition, quantity, allow_offers, accept_vipps, status, views_count, created_at, updated_at)

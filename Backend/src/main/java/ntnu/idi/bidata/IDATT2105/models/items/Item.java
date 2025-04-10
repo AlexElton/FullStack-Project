@@ -46,11 +46,11 @@ public class Item {
   @Column(name = "item_id")
   private Long itemId;
   
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "seller_id", nullable = false)
   private User seller;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "category_id", nullable = false)
   private Category category;
 
@@ -226,5 +226,13 @@ public class Item {
 
   public void setExpiresAt(LocalDateTime expiresAt) {
     this.expiresAt = expiresAt;
+  }
+
+  public List<ItemImage> getImages() {
+    return images;
+  }
+
+  public void setImages(List<ItemImage> images) {
+    this.images = images;
   }
 }
