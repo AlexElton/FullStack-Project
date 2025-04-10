@@ -17,6 +17,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import ntnu.idi.bidata.IDATT2105.models.enums.PaymentMethod;
 import ntnu.idi.bidata.IDATT2105.models.enums.TransactionStatus;
@@ -54,7 +55,7 @@ public class Transaction {
   @JoinColumn(name = "buyer_id", nullable = false)
   private User buyer;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "offer_id")
   private Offer offer;
 
