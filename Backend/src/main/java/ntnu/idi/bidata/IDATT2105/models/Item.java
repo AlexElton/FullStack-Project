@@ -18,6 +18,8 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import ntnu.idi.bidata.IDATT2105.models.enums.ItemCondition;
+import ntnu.idi.bidata.IDATT2105.models.enums.ItemStatus;
 
 @Entity
 @Table(name = "items", indexes = {

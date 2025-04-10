@@ -14,6 +14,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
+import ntnu.idi.bidata.IDATT2105.models.enums.AccountStatus;
+import ntnu.idi.bidata.IDATT2105.models.enums.Role;
 
 /**
  * JPA entity representing a user in the system.
