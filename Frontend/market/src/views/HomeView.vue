@@ -1,56 +1,54 @@
 <script setup>
+import { ref } from 'vue'
 import ProductCard from '@/components/ProductCard.vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-// Sample Hero images
+// Hero images
 const heroImages = [
   'https://res.cloudinary.com/dvxtp0hrq/image/upload/v1743697402/cld-sample-4.jpg',
   'https://res.cloudinary.com/dvxtp0hrq/image/upload/v1743697402/cld-sample-2.jpg',
   'https://res.cloudinary.com/dvxtp0hrq/image/upload/v1743697402/cld-sample-3.jpg',
 ]
-
 const heroImage = heroImages[Math.floor(Math.random() * heroImages.length)]
 
-// Sample data - in a real app, this would come from an API
-const featuredProducts = [
-  {
-    id: 1,
-    title: 'Premium Headphones',
-    price: 199.99,
-    image: 'https://placehold.co/600x400',
-    description: 'High-quality wireless headphones with noise cancellation',
-  },
-  {
-    id: 2,
-    title: 'Smart Watch',
-    price: 299.99,
-    image: 'https://placehold.co/600x400',
-    description: 'Feature-rich smartwatch with health tracking',
-  },
-  {
-    id: 3,
-    title: 'Wireless Speaker',
-    price: 149.99,
-    image: 'https://placehold.co/600x400',
-    description: 'Portable Bluetooth speaker with premium sound',
-  },
+// Simulated API data (you can replace this with a real API later)
+const allFeaturedProducts = [
+  // Imagine this is coming from an API, sorted by created_at DESC
+  { id: 1, title: 'Premium Headphones', price: 199.99, image: 'https://placehold.co/600x400', description: 'High-quality wireless headphones' },
+  { id: 2, title: 'Smart Watch', price: 299.99, image: 'https://placehold.co/600x400', description: 'Smartwatch with health tracking' },
+  { id: 3, title: 'Wireless Speaker', price: 149.99, image: 'https://placehold.co/600x400', description: 'Bluetooth speaker with premium sound' },
+  { id: 4, title: 'Tablet Pro', price: 499.99, image: 'https://placehold.co/600x400', description: 'High-performance tablet' },
+  { id: 5, title: 'Gaming Mouse', price: 89.99, image: 'https://placehold.co/600x400', description: 'Precision gaming mouse' },
+  { id: 6, title: 'Laptop Stand', price: 39.99, image: 'https://placehold.co/600x400', description: 'Ergonomic stand for laptops' },
+  { id: 7, title: 'Smart Lamp', price: 59.99, image: 'https://placehold.co/600x400', description: 'Voice controlled smart lamp' },
+  { id: 8, title: 'Noise Cancelling Earbuds', price: 129.99, image: 'https://placehold.co/600x400', description: 'Compact earbuds with ANC' },
+  { id: 9, title: '4K Monitor', price: 299.99, image: 'https://placehold.co/600x400', description: 'Crystal-clear display for work & play' },
+  { id: 10, title: 'Portable SSD', price: 109.99, image: 'https://placehold.co/600x400', description: 'Fast and compact external drive' },
 ]
 
-const navigateToProducts = () => {
-  router.push('/products')
+const limit = 4
+const offset = ref(0)
+const paginatedProducts = ref([])
+
+const loadMore = () => {
+  const next = allFeaturedProducts.slice(offset.value, offset.value + limit)
+  paginatedProducts.value.push(...next)
+  offset.value += limit
 }
 
-const navigateToSell = () => {
-  router.push('/sell')
-}
+loadMore() // Load initial batch
+
+const navigateToProducts = () => router.push('/products')
+const navigateToSell = () => router.push('/sell')
 </script>
+
 
 <template>
   <main class="home">
     <section class="hero" :style="{ backgroundImage: `url(${heroImage})` }">
-      <div class="hero-content" >
+      <div class="hero-content">
         <h1>Welcome to ShopZilla</h1>
         <p>Discover amazing products at great prices</p>
         <div class="buttons">
@@ -64,7 +62,7 @@ const navigateToSell = () => {
       <h2>Featured Products</h2>
       <div class="products-grid">
         <ProductCard
-          v-for="product in featuredProducts"
+          v-for="product in paginatedProducts"
           :key="product.id"
           :title="product.title"
           :price="product.price"
@@ -73,9 +71,19 @@ const navigateToSell = () => {
           :id="product.id"
         />
       </div>
+      <div style="text-align: center; margin-top: 2rem;">
+        <button
+          class="cta-button"
+          v-if="offset < allFeaturedProducts.length"
+          @click="loadMore"
+        >
+          Load More
+        </button>
+      </div>
     </section>
   </main>
 </template>
+
 
 <style scoped>
 .home {
