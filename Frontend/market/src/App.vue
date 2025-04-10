@@ -5,10 +5,10 @@ import { RouterView } from 'vue-router';
 import NavBar from './components/NavBar.vue';
 
 // Use the message store composable
-const messageStore = useMessageStore();
+const { unreadCount } = useMessageStore();
 
 // Provide the unreadCount from the message store
-provide('unreadCount', messageStore.unreadCount);
+provide('unreadCount', computed(() => unreadCount.value));
 </script>
 
 <template>
