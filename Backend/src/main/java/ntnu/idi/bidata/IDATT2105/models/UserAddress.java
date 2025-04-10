@@ -22,7 +22,7 @@ import jakarta.persistence.Table;
   @Index(name = "idx_user_id", columnList = "user_id"),
   @Index(name = "idx_location", columnList = "latitude, longitude")
 })
-public class UserAddresses {
+public class UserAddress {
   
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
