@@ -1,4 +1,4 @@
-package ntnu.idi.bidata.IDATT2105.models;
+package ntnu.idi.bidata.IDATT2105.models.user;
 
 import java.time.LocalDateTime;
 

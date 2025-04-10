@@ -1,4 +1,4 @@
-package ntnu.idi.bidata.IDATT2105.models;
+package ntnu.idi.bidata.IDATT2105.models.items;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -20,6 +20,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import ntnu.idi.bidata.IDATT2105.models.enums.ItemCondition;
 import ntnu.idi.bidata.IDATT2105.models.enums.ItemStatus;
+import ntnu.idi.bidata.IDATT2105.models.user.User;
 
 @Entity
 @Table(name = "items", indexes = {
