@@ -216,7 +216,7 @@ const sendMessage = () => {
 
 .nav-button:hover {
   background: rgba(0, 0, 0, 0.8);
-  color: #f0931c;
+  color: var(--primary-color);
 }
 
 .nav-button.prev {
@@ -245,7 +245,7 @@ const sendMessage = () => {
 }
 
 .thumbnail.active {
-  border-color: #f0931c;
+  border-color: var(--primary-color);
 }
 
 .thumbnail img {
@@ -269,7 +269,7 @@ h1 {
 .price {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #f0931c;
+  color: var(--button-background);
 }
 
 .seller-info,
@@ -304,11 +304,12 @@ h3 {
 }
 
 .rating {
-  color: #f0931c;
+  color: var(--primary-color);
+  font-weight: 600;
 }
 
 .response-time {
-  color: #f0931c;
+  color: var(--primary-color);
   font-size: 0.9rem;
 }
 
@@ -368,7 +369,7 @@ h3 {
   cursor: pointer;
   font-weight: 600;
   transition: all 0.2s;
-  background-color: #f0931c;
+  background-color: var(--primary-color);
   color: #000000;
 }
 
@@ -445,13 +446,13 @@ h3 {
 }
 
 .send-button {
-  background-color: #f0931c;
+  background-color: var(--primary-color);
   color: #000000;
   border: none;
 }
 
 .send-button:hover:not(:disabled) {
-  background-color: #e88a1a;
+  background-color: var(--button-background);
 }
 
 .send-button:disabled {
