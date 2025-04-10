@@ -78,18 +78,31 @@ const products = [
   }
 ]
 
-// State for selected category and sort option
+// State for filters and search
 const selectedCategory = ref('All')
 const selectedSort = ref('newest')
+const searchQuery = ref('')
 
 // Computed property to filter and sort products
 const filteredProducts = computed(() => {
-  // First filter by category
-  let result = selectedCategory.value === 'All' 
-    ? [...products] 
-    : products.filter(product => product.category === selectedCategory.value)
+  // Step 1: Apply search filter if there's a search query
+  let result = [...products]
   
-  // Then sort based on selected option
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase().trim()
+    result = result.filter(product => 
+      product.title.toLowerCase().includes(query) || 
+      product.description.toLowerCase().includes(query) ||
+      product.category.toLowerCase().includes(query)
+    )
+  }
+  
+  // Step 2: Filter by category
+  if (selectedCategory.value !== 'All') {
+    result = result.filter(product => product.category === selectedCategory.value)
+  }
+  
+  // Step 3: Sort based on selected option
   switch (selectedSort.value) {
     case 'price-asc':
       return result.sort((a, b) => a.price - b.price)
@@ -119,14 +132,33 @@ const handleCategoryChange = (event) => {
 const handleSortChange = (event) => {
   selectedSort.value = event.target.value
 }
+
+// Handle search
+const handleSearch = () => {
+  // The search is already reactive with the v-model binding
+  // But this function can be used for additional actions like tracking search history
+  console.log('Searching for:', searchQuery.value)
+}
+
+// Handle Enter key press in search input
+const handleSearchKeyup = (event) => {
+  if (event.key === 'Enter') {
+    handleSearch()
+  }
+}
 </script>
 
 <template>
   <div class="products-page">
     <div class="filters">
       <div class="search-bar">
-        <input type="text" placeholder="Search products..." />
-        <button>Search</button>
+        <input 
+          type="text" 
+          placeholder="Search products..." 
+          v-model="searchQuery"
+          @keyup="handleSearchKeyup"
+        />
+        <button @click="handleSearch">Search</button>
       </div>
 
       <div class="filter-options">
@@ -144,7 +176,11 @@ const handleSortChange = (event) => {
       </div>
     </div>
 
-    <div class="products-grid">
+    <div v-if="filteredProducts.length === 0" class="no-results">
+      <p>No products found. Try a different search or filter.</p>
+    </div>
+
+    <div v-else class="products-grid">
       <ProductCard
         v-for="product in filteredProducts"
         :key="product.id"
@@ -168,7 +204,6 @@ const handleSortChange = (event) => {
   max-width: 100%;
   margin: 0 auto;
   padding: 1rem;
-
 }
 
 .filters {
@@ -231,6 +266,19 @@ const handleSortChange = (event) => {
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 2rem;
   margin-bottom: 3rem;
+}
+
+.no-results {
+  text-align: center;
+  padding: 3rem;
+  background-color: var(--card-background);
+  border-radius: 8px;
+  margin-bottom: 3rem;
+}
+
+.no-results p {
+  color: var(--text-color);
+  font-size: 1.2rem;
 }
 
 .sell-section {
