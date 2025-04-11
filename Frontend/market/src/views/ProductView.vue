@@ -166,19 +166,53 @@ const fetchProduct = async () => {
   }
 }
 
+const geocode = async () => {
+  try {
+    const requestOptions = {
+      method: 'GET',
+    };
+    
+    // Use the product's address for geocoding
+    const address = encodeURIComponent(product.value.location);
+    console.log(address)
+    const response = await fetch(
+      `https://api.geoapify.com/v1/geocode/search?text=${address}&apiKey=33e776df1b4f44bca3bfd13fefd0b894`,
+      requestOptions
+    );
+    
+    const data = await response.json();
+    
+    if (data.features && data.features.length > 0) {
+      const coordinates = data.features[0].geometry.coordinates;
+      console.log('Coordinates:', coordinates);
+      return coordinates;
+    } else {
+      console.error('No results found for address:', product.value.location.address);
+      return null;
+    }
+  } catch (error) {
+    console.error('Error during geocoding:', error);
+    return null;
+  }
+}
+
 // Initialize the map
-const initMap = () => {
+const initMap = async () => {
   if (!mapContainer.value) return
   
   try {
     // Fix Leaflet icon issue
     fixLeafletIcon()
     
+    // Run geocode api
+    const coordinates = await geocode()
+    
+    // If geocoding failed, use default coordinates
+    const lat = coordinates ? coordinates[1] : product.value.location.coordinates.lat
+    const lng = coordinates ? coordinates[0] : product.value.location.coordinates.lng
+    
     // Create the map instance
-    map = L.map(mapContainer.value).setView(
-      [product.value.location.coordinates.lat, product.value.location.coordinates.lng], 
-      15
-    )
+    map = L.map(mapContainer.value).setView([lat, lng], 15)
     
     // Add the OpenStreetMap tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -186,7 +220,7 @@ const initMap = () => {
     }).addTo(map)
     
     // Add a marker for the product location
-    L.marker([product.value.location.coordinates.lat, product.value.location.coordinates.lng])
+    L.marker([lat, lng])
       .addTo(map)
       .bindPopup(product.value.location.address)
       .openPopup()
