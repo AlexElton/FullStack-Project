@@ -8,6 +8,7 @@ export const useItemStore = defineStore('items', {
   state: () => ({
     items: [],
     currentItem: null,
+    userListings: [],
     loading: false,
     error: null,
     totalItems: 0,
@@ -237,6 +238,26 @@ export const useItemStore = defineStore('items', {
         return response.data
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to fetch nearby items'
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+    
+    async getUserListings() {
+      this.loading = true
+      this.error = null
+      const authStore = useAuthStore()
+      
+      try {
+        const response = await axios.get(`${API_URL}/items/seller/${authStore.currentUser.id}`, {
+          headers: { Authorization: `Bearer ${authStore.token}` }
+        })
+        this.userListings = response.data.content
+        return this.userListings
+      } catch (error) {
+        console.error('Error fetching user listings:', error)
+        this.error = error.response?.data?.message || 'Failed to load your listings'
         throw error
       } finally {
         this.loading = false

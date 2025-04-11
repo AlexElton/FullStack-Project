@@ -9,6 +9,7 @@ import RegisterView from '../views/RegisterView.vue'
 import MessagesView from '../views/MessagesView.vue'
 import ProfilePageView from '../views/ProfilePageView.vue'
 import CategoryView from '../views/CategoryView.vue'
+import ProfileListingsView from '../views/ProfileListingsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -57,6 +58,11 @@ const router = createRouter({
       path: '/register', 
       name: 'register', 
       component: RegisterView, 
+    },
+    {
+      path: '/profile/listings',
+      name: 'profile-listings',
+      component: ProfileListingsView,
     },
   ],
 })
