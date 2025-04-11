@@ -4,6 +4,20 @@ import Cookies from 'js-cookie'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
 
+// Add axios interceptor for authentication
+axios.interceptors.request.use(
+  (config) => {
+    const token = Cookies.get('token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
+  }
+)
+
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
@@ -53,9 +67,7 @@ export const useAuthStore = defineStore('auth', {
       if (!this.token) return false
       
       try {
-        const response = await axios.get(`${API_URL}/auth/validate`, {
-          headers: { Authorization: `Bearer ${this.token}` }
-        })
+        const response = await axios.get(`${API_URL}/auth/validate`)
         return true
       } catch (error) {
         this.logout()
