@@ -23,7 +23,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import jakarta.servlet.http.HttpServletResponse;
-import ntnu.idi.bidata.IDATT2105.services.security.JwtAuthenticationFilter;
 
 /**
  * Spring Security configuration class.
@@ -33,7 +32,7 @@ import ntnu.idi.bidata.IDATT2105.services.security.JwtAuthenticationFilter;
 public class SecurityConfig {
 
     @Autowired
-    private JwtAuthenticationFilter jwtAuthFilter;
+    private JwtAuthFilter jwtAuthFilter;
 
     @Autowired
     private UserDetailsService userDetailsService;
