@@ -2,11 +2,31 @@
 import { RouterLink } from 'vue-router'
 import { ref, computed } from 'vue'
 import { useMessageStore } from '../composables/messageStore'
+import { useAuthStore } from '@/stores/authStore'
+import { useRouter } from 'vue-router'
 
 // Use the message store instead of injection
 const { unreadCount } = useMessageStore()
 
 const isMenuOpen = ref(false)
+
+//Add to check if logged in 
+// Access the authentication store
+const authStore = useAuthStore()
+const router = useRouter()
+
+// Computed property to check if the user is authenticated
+const isAuthenticated = computed(() => authStore.isAuthenticated)
+
+// Computed property for displaying the logged-in user's name (if available)
+const currentUserName = computed(() => authStore.currentUser?.username || '')
+
+// Method to log out and redirect to the home page
+function logout() {
+  authStore.logout()
+  router.push('/')
+}
+
 </script>
 
 <template>
@@ -28,13 +48,10 @@ const isMenuOpen = ref(false)
         <RouterLink to="/categories" class="nav-link" @click="isMenuOpen = false">
           <span class="link-text">Categories</span>
         </RouterLink>
-        <RouterLink to="/messages" class="nav-link" @click="isMenuOpen = false">
-          <span class="link-text">Messages</span>
-          <span v-if="unreadCount > 0" class="message-count">{{ unreadCount }}</span>
-        </RouterLink>
+      
       </div>
 
-      <div class="nav-actions" :class="{ 'nav-open': isMenuOpen }">
+      <div class="nav-actions" :class="{ 'nav-open': isMenuOpen }" v-if="!isAuthenticated">
         <RouterLink to="/sell" class="nav-link sell-link" @click="isMenuOpen = false">
           <span class="link-text">Sell</span>
         </RouterLink>
@@ -43,6 +60,21 @@ const isMenuOpen = ref(false)
         </RouterLink>
         <RouterLink to="/register" class="nav-link register-link" @click="isMenuOpen = false">
           <span class="link-text">Register</span>
+        </RouterLink>
+      </div>
+
+      <div class="nav-actions" :class="{ 'nav-open': isMenuOpen }" v-if="isAuthenticated">
+        <RouterLink to="/messages" class="nav-link" @click="isMenuOpen = false">
+          <span class="link-text">Messages</span>
+        </RouterLink>
+          <span v-if="unreadCount > 0" class="message-count">{{ unreadCount }}</span>
+         <span>Welcome, {{ currentUserName }}</span>
+        <RouterLink to="/profile" class="nav-link" @click="isMenuOpen = false">
+          <span class="link-text">Profile</span>
+        </RouterLink>
+         <button @click="logout" class="btn">Logout</button>
+         <RouterLink to="/sell" class="nav-link sell-link" @click="isMenuOpen = false">
+          <span class="link-text">Sell</span>
         </RouterLink>
       </div>
 
