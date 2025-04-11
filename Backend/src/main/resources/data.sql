@@ -1,8 +1,8 @@
 -- Insert test users
 INSERT INTO users (username, email, password_hash, first_name, last_name, phone_number, role, account_status, bio, profile_pic_url, created_at, updated_at, last_login_at)
 VALUES 
-('admin', 'admin@example.com', '$2a$10$mDQtfH0X6juF3MQTPnvIMO7c0jYKL5PiUQJw3g.LYBFvICmZ2zDUu', 'Admin', 'User', '12345678', 'ADMIN', 'ACTIVE', 'Admin user', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('user1', 'user1@example.com', '$2a$10$mDQtfH0X6juF3MQTPnvIMO7c0jYKL5PiUQJw3g.LYBFvICmZ2zDUu', 'John', 'Doe', '87654321', 'USER', 'ACTIVE', 'Regular user', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+('admin', 'admin@example.com', '$2a$10$ZXk4oHlnlRI0a.AtGyUJl.tPTHcoceeNoIuyNIKX5UaLF/qgTaVc.', 'Admin', 'User', '12345678', 'ADMIN', 'ACTIVE', 'Admin user', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('user1', 'user1@example.com', '$2a$10$ZXk4oHlnlRI0a.AtGyUJl.tPTHcoceeNoIuyNIKX5UaLF/qgTaVc.', 'John', 'Doe', '87654321', 'USER', 'ACTIVE', 'Regular user', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- Insert categories
 INSERT INTO categories (name, description, parent_category_id, display_order, icon_url, is_active, created_at, updated_at)
