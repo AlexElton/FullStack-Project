@@ -1,5 +1,8 @@
 package ntnu.idi.bidata.IDATT2105.services.notification;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,15 +12,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ntnu.idi.bidata.IDATT2105.exceptions.ApiException;
 import ntnu.idi.bidata.IDATT2105.models.enums.NotificationType;
+import ntnu.idi.bidata.IDATT2105.models.enums.Theme;
 import ntnu.idi.bidata.IDATT2105.models.notification.Notification;
 import ntnu.idi.bidata.IDATT2105.models.user.User;
 import ntnu.idi.bidata.IDATT2105.models.user.UserSettings;
 import ntnu.idi.bidata.IDATT2105.repos.notification.NotificationRepository;
 import ntnu.idi.bidata.IDATT2105.repos.user.UserRepository;
 import ntnu.idi.bidata.IDATT2105.repos.user.UserSettingsRepository;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class NotificationService {
@@ -51,9 +52,17 @@ public class NotificationService {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new ApiException("User not found", HttpStatus.NOT_FOUND));
         
-        // Check user notification preferences
+        // Get or create user settings
         UserSettings settings = userSettingsRepository.findById(userId)
-            .orElseThrow(() -> new ApiException("User settings not found", HttpStatus.NOT_FOUND));
+            .orElseGet(() -> {
+                // Create default settings if they don't exist
+                UserSettings defaultSettings = new UserSettings(user);
+                defaultSettings.setLanguage("en");
+                defaultSettings.setEmailNotifications(true);
+                defaultSettings.setPushNotifications(true);
+                defaultSettings.setTheme(Theme.LIGHT);
+                return userSettingsRepository.save(defaultSettings);
+            });
         
         // Skip if notifications are disabled
         if (type == NotificationType.SYSTEM && !settings.getPushNotifications()) {

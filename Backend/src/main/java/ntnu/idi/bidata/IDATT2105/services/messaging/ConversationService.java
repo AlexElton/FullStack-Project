@@ -1,5 +1,10 @@
 package ntnu.idi.bidata.IDATT2105.services.messaging;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,12 +26,6 @@ import ntnu.idi.bidata.IDATT2105.repos.messaging.ConversationRepository;
 import ntnu.idi.bidata.IDATT2105.repos.messaging.MessageRepository;
 import ntnu.idi.bidata.IDATT2105.repos.user.UserRepository;
 import ntnu.idi.bidata.IDATT2105.services.notification.NotificationService;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class ConversationService {
@@ -106,6 +105,12 @@ public class ConversationService {
             Message message = new Message();
             message.setConversation(savedConversation);
             message.setSender(initiator);
+            // Set the receiver to the other participant
+            User receiver = participants.stream()
+                .filter(p -> !p.getId().equals(initiatorId))
+                .findFirst()
+                .orElseThrow(() -> new ApiException("No receiver found for message", HttpStatus.BAD_REQUEST));
+            message.setReceiver(receiver);
             message.setMessageText(dto.getInitialMessage().trim());
             messageRepository.save(message);
             

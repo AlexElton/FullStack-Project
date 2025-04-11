@@ -123,8 +123,9 @@ const closeMessageModal = () => {
 }
 
 const sendMessage = async () => {
-  if (!authStore.isAuthenticated || !authStore.currentUser) {
-    console.log('Not authenticated, redirecting to login')
+  // First check if we have a token
+  if (!authStore.token) {
+    console.log('No token found, redirecting to login')
     router.push('/login?redirect=/product')
     return
   }
@@ -137,6 +138,13 @@ const sendMessage = async () => {
     return
   }
 
+  // Check if we have user data
+  if (!authStore.currentUser) {
+    console.log('No user data found, redirecting to login')
+    router.push('/login?redirect=/product')
+    return
+  }
+
   // Validate IDs
   if (!product.value.seller?.id) {
     console.error('Seller ID is missing')
@@ -144,22 +152,11 @@ const sendMessage = async () => {
     return
   }
 
-  // Debug authentication state
-  console.log('Auth state:', {
-    isAuthenticated: authStore.isAuthenticated,
-    currentUser: authStore.currentUser,
-    token: authStore.token,
-    tokenLength: authStore.token?.length,
-    tokenParts: authStore.token?.split('.')
-  })
-
   try {
     const headers = {
       'Authorization': `Bearer ${authStore.token}`,
       'Content-Type': 'application/json'
     }
-    
-    console.log('Request headers:', headers)
     
     const requestBody = {
       participantIds: [authStore.currentUser.id, product.value.seller.id],
@@ -167,9 +164,10 @@ const sendMessage = async () => {
       initialMessage: messageText.value
     }
     
+    console.log('Sending request with headers:', headers)
     console.log('Request body:', requestBody)
     
-    const response = await axios.post(`${API_URL}/conversations`, requestBody, { headers })
+    const response = await axios.post(`${API_URL}/conversations?initiatorId=${authStore.currentUser.id}`, requestBody, { headers })
     console.log('Message sent successfully:', response.data)
     closeMessageModal()
   } catch (err) {
@@ -177,13 +175,11 @@ const sendMessage = async () => {
     console.error('Error response:', err.response)
     if (err.response?.status === 401) {
       console.log('Token might be invalid, redirecting to login')
-      // Try to validate token again to be sure
-      const isValid = await authStore.validateToken()
-      if (!isValid) {
-        console.log('Token validation failed, logging out')
-        await authStore.logout()
-      }
       router.push('/login?redirect=/product')
+    } else if (err.response?.status === 404 && err.response?.data?.message?.includes('User settings not found')) {
+      // If the error is due to missing user settings, we can still consider the message sent
+      console.log('Message sent but notification failed due to missing user settings')
+      closeMessageModal()
     } else {
       error.value = err.response?.data?.message || 'Failed to send message'
     }
