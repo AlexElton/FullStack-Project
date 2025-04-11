@@ -125,6 +125,41 @@ public class AuthService {
     }
 
     /**
+     * Logs out a user by invalidating their JWT token.
+     *
+     * @param token the JWT token to invalidate
+     */
+    public void logout(String token) {
+        //TODO Implement: Invalidate the token 
+        logger.info("User logged out: " + token);
+    }
+
+    /**
+     * Refreshes the JWT token for a user.
+     *
+     * @param token the JWT token to refresh
+     * @return authentication response with new token
+     * @throws ApiException if token is invalid or user not found
+     */
+    public AuthResponseDTO refreshToken(String token) throws ApiException {
+        // Validate the token and extract user details
+        String username = jwtService.extractUsername(token);
+        if (username == null) {
+            throw new ApiException("Invalid token", HttpStatus.UNAUTHORIZED);
+        }
+
+        // Get user from repository
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new ApiException("User not found", HttpStatus.NOT_FOUND));
+        
+        // Generate new JWT token
+        String newToken = jwtService.generateToken(user);
+        
+        logger.info("Token refreshed for user: " + user.getUsername());
+        return new AuthResponseDTO(newToken, user.getId(), user.getUsername(), user.getRole());
+    }
+
+    /**
      * Authenticates a user and returns a JWT token.
      *
      * @param request the authentication request
