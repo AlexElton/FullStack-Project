@@ -4,6 +4,10 @@ import { useRoute } from 'vue-router'
 import { useItemStore } from '../stores/itemStore'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
+import { useAuthStore } from '@/stores/authStore'
+import { useRouter } from 'vue-router'
+import axios from 'axios'
+import { API_URL } from '../config'
 
 const route = useRoute()
 const itemStore = useItemStore()
@@ -14,6 +18,8 @@ const mapContainer = ref(null)
 const loading = ref(true)
 const error = ref(null)
 let map = null
+const authStore = useAuthStore()
+const router = useRouter()
 
 // Fix for Leaflet marker icons
 const fixLeafletIcon = () => {
@@ -78,6 +84,7 @@ const product = computed(() => {
       },
     },
     seller: {
+      id: itemStore.currentItem.seller?.id || null,
       username: itemStore.currentItem.seller?.username || 'Unknown seller',
       rating: itemStore.currentItem.seller?.rating || 0,
       memberSince: itemStore.currentItem.seller?.createdAt 
@@ -115,14 +122,72 @@ const closeMessageModal = () => {
   messageText.value = ''
 }
 
-const sendMessage = () => {
-  // TODO: Implement message sending functionality
-  console.log('Sending message to seller:', {
-    seller: product.value.seller.username,
-    message: messageText.value,
-    productId: product.value.id,
+const sendMessage = async () => {
+  if (!authStore.isAuthenticated || !authStore.currentUser) {
+    console.log('Not authenticated, redirecting to login')
+    router.push('/login?redirect=/product')
+    return
+  }
+
+  // Validate token before sending message
+  const isValid = await authStore.validateToken()
+  if (!isValid) {
+    console.log('Token is invalid, redirecting to login')
+    router.push('/login?redirect=/product')
+    return
+  }
+
+  // Validate IDs
+  if (!product.value.seller?.id) {
+    console.error('Seller ID is missing')
+    error.value = 'Unable to send message: Seller information is incomplete'
+    return
+  }
+
+  // Debug authentication state
+  console.log('Auth state:', {
+    isAuthenticated: authStore.isAuthenticated,
+    currentUser: authStore.currentUser,
+    token: authStore.token,
+    tokenLength: authStore.token?.length,
+    tokenParts: authStore.token?.split('.')
   })
-  closeMessageModal()
+
+  try {
+    const headers = {
+      'Authorization': `Bearer ${authStore.token}`,
+      'Content-Type': 'application/json'
+    }
+    
+    console.log('Request headers:', headers)
+    
+    const requestBody = {
+      participantIds: [authStore.currentUser.id, product.value.seller.id],
+      itemId: product.value.id,
+      initialMessage: messageText.value
+    }
+    
+    console.log('Request body:', requestBody)
+    
+    const response = await axios.post(`${API_URL}/conversations`, requestBody, { headers })
+    console.log('Message sent successfully:', response.data)
+    closeMessageModal()
+  } catch (err) {
+    console.error('Error sending message:', err)
+    console.error('Error response:', err.response)
+    if (err.response?.status === 401) {
+      console.log('Token might be invalid, redirecting to login')
+      // Try to validate token again to be sure
+      const isValid = await authStore.validateToken()
+      if (!isValid) {
+        console.log('Token validation failed, logging out')
+        await authStore.logout()
+      }
+      router.push('/login?redirect=/product')
+    } else {
+      error.value = err.response?.data?.message || 'Failed to send message'
+    }
+  }
 }
 
 // Fetch product data
@@ -140,6 +205,10 @@ const fetchProduct = async () => {
     
     if (!itemStore.currentItem) {
       error.value = 'Product not found'
+    } else {
+      // Debug seller information
+      console.log('Seller object:', itemStore.currentItem.seller)
+      console.log('Seller ID:', itemStore.currentItem.seller?.id)
     }
   } catch (err) {
     console.error('Error fetching product:', err)
