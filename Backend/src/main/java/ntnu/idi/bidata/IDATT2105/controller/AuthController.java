@@ -52,4 +52,18 @@ public class AuthController {
         boolean exists = authService.usernameExists(username);
         return ResponseEntity.ok(exists);
     }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<AuthResponseDTO> refreshToken(@RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7); // Remove "Bearer " prefix
+        AuthResponseDTO response = authService.refreshToken(token);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7); // Remove "Bearer " prefix
+        authService.logout(token);
+        return ResponseEntity.ok().build();
+    }
 } 
