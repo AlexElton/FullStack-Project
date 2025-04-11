@@ -3,6 +3,7 @@ import { provide, computed } from 'vue';
 import { useMessageStore } from '@/composables/messageStore';
 import { RouterView } from 'vue-router';
 import NavBar from './components/NavBar.vue';
+import AdminNavBar from './components/AdminNavBar.vue';
 
 // Use the message store composable
 const { unreadCount } = useMessageStore();
