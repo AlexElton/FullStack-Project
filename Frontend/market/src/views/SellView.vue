@@ -17,10 +17,12 @@ const fullDescription = ref('')
 const price = ref('')
 const quantity = ref(1)
 const condition = ref('NEW')
-const categoryId = ref(null) // Changed from hardcoded value
+const categoryId = ref(null)
 const allowOffers = ref(true)
 const acceptVipps = ref(true)
-const locationAddress = ref('')
+const streetAddress = ref('')
+const city = ref('')
+const postalCode = ref('')
 const tags = ref([])
 const imageUrls = ref([])
 const error = ref(null)
@@ -61,6 +63,9 @@ const handleSubmit = async () => {
     loading.value = true
     error.value = null
 
+    // Construct full address from components
+    const locationAddress = `${streetAddress.value}, ${postalCode.value} ${city.value}`.trim()
+
     const itemData = {
       title: title.value,
       briefDescription: briefDescription.value,
@@ -71,15 +76,18 @@ const handleSubmit = async () => {
       categoryId: parseInt(categoryId.value),
       allowOffers: allowOffers.value,
       acceptVipps: acceptVipps.value,
-      locationAddress: locationAddress.value || null,
+      locationAddress: locationAddress || null,
+      streetAddress: streetAddress.value,
+      city: city.value,
+      postalCode: postalCode.value,
       tags: tags.value,
       imageUrls: imageUrls.value,
-      currency: 'NOK' // Default currency as required by backend
+      currency: 'NOK'
     }
 
-    console.log('Submitting item data:', itemData) // Debug log
+    console.log('Submitting item data:', itemData)
     await itemStore.createItem(itemData)
-    router.push('/profile/listings') // Redirect to listings after success
+    router.push('/profile/listings')
   } catch (err) {
     console.error('Error creating item:', err)
     error.value = err.response?.data?.message || err.message || 'Failed to create item'
@@ -98,7 +106,9 @@ const resetForm = () => {
   categoryId.value = null
   allowOffers.value = true
   acceptVipps.value = true
-  locationAddress.value = ''
+  streetAddress.value = ''
+  city.value = ''
+  postalCode.value = ''
   tags.value = []
   imageUrls.value = []
 }
@@ -252,12 +262,33 @@ const removeTag = (index) => {
       <div class="form-section">
         <h2>Location</h2>
         <div class="form-group">
-          <label for="location">Location Address</label>
+          <label for="streetAddress">Street Address</label>
           <input
-            id="location"
-            v-model="locationAddress"
+            id="streetAddress"
+            v-model="streetAddress"
             type="text"
-            placeholder="Where is the item located?"
+            placeholder="Enter street address"
+          />
+        </div>
+        
+        <div class="form-group">
+          <label for="postalCode">Postal Code</label>
+          <input
+            id="postalCode"
+            v-model="postalCode"
+            type="text"
+            pattern="[0-9]{4}"
+            placeholder="0000"
+          />
+        </div>
+        
+        <div class="form-group">
+          <label for="city">City</label>
+          <input
+            id="city"
+            v-model="city"
+            type="text"
+            placeholder="Enter city"
           />
         </div>
       </div>
@@ -376,10 +407,9 @@ const removeTag = (index) => {
   font-weight: 500;
 }
 
-.form-group input[type='text'],
-.form-group input[type='number'],
-.form-group select,
-.form-group textarea {
+.form-group input,
+.form-group textarea,
+.form-group select {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid var(--border-color);
@@ -387,6 +417,14 @@ const removeTag = (index) => {
   font-size: 1rem;
   background-color: var(--background-color);
   color: var(--text-color);
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
 }
 
 .price-input {
