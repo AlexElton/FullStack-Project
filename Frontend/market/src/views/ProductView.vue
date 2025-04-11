@@ -114,6 +114,12 @@ const previousImage = () => {
 }
 
 const openMessageModal = () => {
+  // Check if we have a token
+  if (!authStore.token) {
+    console.log('No token found, redirecting to login')
+    router.push('/login?redirect=/product')
+    return
+  }
   isMessageModalOpen.value = true
 }
 
