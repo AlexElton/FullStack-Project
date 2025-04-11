@@ -1,0 +1,54 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-springboot:
+    name: Build & Test Spring Boot Application
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '17'  # Adjust the Java version if needed
+
+      - name: Build Spring Boot Application
+        run: |
+          cd Backend
+          chmod +x ./mvnw  # Ensure the Maven wrapper has execute permissions
+          ./mvnw clean package
+
+      - name: Run Spring Boot Tests
+        run: |
+          cd Backend
+          ./mvnw test
+
+  build-vue:
+    name: Build Vue Application
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'  # Adjust the Node.js version if needed
+
+      - name: Install Dependencies and Build Vue App
+        run: |
+          cd Frontend/market
+          npm install
+          npm run build
